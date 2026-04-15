@@ -5,11 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "itemorynative",
+    "scheme": "itemory",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.itemory",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,6 +22,7 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "package": "com.itemory",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
@@ -27,6 +32,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "@react-native-google-signin/google-signin/app.plugin.js",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.576724600295-1qvvi3u0t52o15eg1202mnc0phs9qejn"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -38,11 +49,19 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2ad63158-02a6-4ca7-ab4d-0391da26c5a4"
+      }
+    },
+    "owner": "jerryren.work"
   }
 }
