@@ -4,6 +4,7 @@ import useAppleSignIn from "@/domain/auth/useAppleSignIn";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
 import { AuthStyles } from "@/styles/auth.styles";
 import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
+import { HttpStatusCode } from "axios";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -13,7 +14,7 @@ import { Platform, Pressable, Text, View } from "react-native";
 const LandingPage = () => {
   const router = useRouter();
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
-  console.log("🚀 ~ LandingPage.tsx:14 ~ LandingPage ~ state:", JSON.stringify(state, null, 2));
+  console.log("🚀 ~ LandingPage.tsx:16 ~ LandingPage ~ state:", JSON.stringify(state, null, 2));
   const { handleGoogleSignIn } = useGoogleSignIn();
   const { handleAppleSignIn } = useAppleSignIn();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -21,7 +22,7 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchToken = async () => {
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
-      // console.log("🚀 ~ LandingPage.tsx:20 ~ fetchToken ~ refreshToken:", refreshToken);
+      // console.log("🚀 ~ LandingPage.tsx:24 ~ fetchToken ~ refreshToken:", refreshToken);
     };
 
     GoogleSignin.configure({
@@ -43,9 +44,14 @@ const LandingPage = () => {
     try {
       setErrorMessage(null);
       await handleGoogleSignIn();
-    } catch (err) {
-      console.log("🚀 ~ LandingPage.tsx:39 ~ onPressGoogle ~ err:", err);
-      setErrorMessage("Please check your internet connection.");
+    } catch (err: any) {
+      console.log("🚀 ~ LandingPage.tsx:47 ~ onPressGoogle ~ err:", err);
+      if (err?.status === HttpStatusCode.Conflict) {
+        setErrorMessage(`${err?.response.data.message}`);
+        return;
+      } else {
+        setErrorMessage("Encountered an unknown error.");
+      }
     }
   };
 

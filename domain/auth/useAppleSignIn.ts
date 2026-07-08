@@ -4,11 +4,61 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useContext } from "react";
+import { Alert } from "react-native";
 import { AuthState } from "./authTypes";
 
 const useAppleSignIn = () => {
   const router = useRouter();
   const { dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
+
+  const completeSignIn = async (res: { data: { refresh_token: string; access_token: string } }) => {
+    await SecureStore.setItemAsync("refreshToken", res.data.refresh_token);
+
+    dispatch({
+      type: "LOGIN_SUCCEEDED",
+      payload: { accessToken: res.data.access_token, authProvider: "apple" },
+    });
+
+    router.replace("/");
+  };
+
+  // No account is linked to this Apple ID yet. Ask the user whether they're new
+  // (create an account via apple/confirm) or already have an account under a
+  // different sign-in method (send them to log in with email/password).
+  const promptNewAppleUser = (identityToken: string) => {
+    return new Promise<void>((resolve, reject) => {
+      Alert.alert(
+        "Welcome",
+        "Is this your first time signing in, or do you have an existing account?",
+        [
+          {
+            text: "I have an existing account",
+            onPress: () => {
+              router.push("./LoginPage");
+              resolve();
+            },
+          },
+          {
+            text: "This is my first time",
+            onPress: async () => {
+              try {
+                const res = await axios.post(
+                  `${process.env.EXPO_PUBLIC_MACHINE_IP_ADDRESS_URL}/app/apple/confirm`,
+                  { identityToken },
+                  { headers: { "Content-Type": "application/json" } },
+                );
+                await completeSignIn(res);
+                resolve();
+              } catch (err) {
+                reject(err);
+              }
+            },
+          },
+        ],
+        { cancelable: false },
+      );
+    });
+  };
 
   const handleAppleSignIn = async () => {
     const credential = await AppleAuthentication.signInAsync({
@@ -18,29 +68,18 @@ const useAppleSignIn = () => {
       ],
     });
 
-    let res = await axios.post(
+    const res = await axios.post(
       `${process.env.EXPO_PUBLIC_MACHINE_IP_ADDRESS_URL}/app/apple-sign-in`,
       { identityToken: credential.identityToken },
       { headers: { "Content-Type": "application/json" } },
     );
 
     if (res.data.status === "new_apple_user") {
-      // No account exists for this Apple ID yet — create one using the same identity token.
-      res = await axios.post(
-        `${process.env.EXPO_PUBLIC_MACHINE_IP_ADDRESS_URL}/app/apple/confirm`,
-        { identityToken: credential.identityToken },
-        { headers: { "Content-Type": "application/json" } },
-      );
+      await promptNewAppleUser(credential.identityToken as string);
+      return;
     }
 
-    await SecureStore.setItemAsync("refreshToken", res.data.refresh_token);
-
-    dispatch({
-      type: "LOGIN_SUCCEEDED",
-      payload: { accessToken: res.data.access_token, authProvider: "apple" },
-    });
-
-    router.replace("/");
+    await completeSignIn(res);
   };
 
   return { handleAppleSignIn };

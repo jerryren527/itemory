@@ -13,7 +13,8 @@
       "bundleIdentifier": "com.itemory",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {

@@ -1,6 +1,7 @@
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useContext, useEffect, useState } from "react";
 import { Button, Text, View } from "react-native";
@@ -8,6 +9,7 @@ import api from "../interceptors/axios";
 import SplashScreen from "./SplashScreen";
 
 const MainApp = () => {
+  const router = useRouter();
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext); // keep here for testing purposes.
   console.log("🚀 ~ MainApp.tsx:12 ~ MainApp ~ state:", state);
   const userState = state.userState;
@@ -99,6 +101,7 @@ const MainApp = () => {
           }}
         >
           <Text>Main App UI</Text>
+          <Button title="Settings" onPress={() => router.push("/SettingsScreen")} />
           <Button title="Logout" onPress={handleLogout} />
           <Button title="Test" onPress={handleTestCall} />
         </View>

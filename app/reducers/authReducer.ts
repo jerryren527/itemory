@@ -56,7 +56,9 @@ type AuthActionType =
     } // TODO: is authProvider necessary in payload when session is restored?
   | { type: "LOGIN_REQUIRES_VERIFICATION" }
   | { type: "SIGNUP_REQUIRES_VERIFICATION" }
-  | { type: "SESSION_EXPIRED" };
+  | { type: "SESSION_EXPIRED" }
+  | { type: "GOOGLE_LINKED" }
+  | { type: "GOOGLE_UNLINKED" };
 
 // Define reducer function
 // React's useReducer expects a reducer signature like: (state: StateType, action: { type: string; payload?: any }) => StateType
@@ -153,6 +155,10 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       newState.primaryHome = primaryHome;
 
       return newState as AuthState;
+    case "GOOGLE_LINKED":
+      return { ...state, capabilities: { ...state.capabilities, hasGoogle: true } };
+    case "GOOGLE_UNLINKED":
+      return { ...state, capabilities: { ...state.capabilities, hasGoogle: false } };
     default:
       // console.log("🚀 ~AuthAction is something else... State remains unchanged...");
       return state;
