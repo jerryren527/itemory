@@ -1,18 +1,21 @@
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
+import useAppleSignIn from "@/domain/auth/useAppleSignIn";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
 import { AuthStyles } from "@/styles/auth.styles";
 import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useContext, useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 
 const LandingPage = () => {
   const router = useRouter();
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
   console.log("🚀 ~ LandingPage.tsx:14 ~ LandingPage ~ state:", JSON.stringify(state, null, 2));
   const { handleGoogleSignIn } = useGoogleSignIn();
+  const { handleAppleSignIn } = useAppleSignIn();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,6 +46,35 @@ const LandingPage = () => {
     } catch (err) {
       console.log("🚀 ~ LandingPage.tsx:39 ~ onPressGoogle ~ err:", err);
       setErrorMessage("Please check your internet connection.");
+    }
+  };
+
+  const onPressApple = async () => {
+    try {
+      setErrorMessage(null);
+      await handleAppleSignIn();
+    } catch (err: any) {
+      if (err?.code === "ERR_REQUEST_CANCELED") {
+        // User dismissed the Apple sheet — no message needed
+        return;
+      }
+      if (err?.code === "ERR_REQUEST_FAILED" || err?.code === "ERR_REQUEST_UNKNOWN") {
+        console.log("🚀 ~ LandingPage.tsx ~ onPressApple ~ apple auth failed:", err);
+        setErrorMessage("Apple Sign In is unavailable. Please try again.");
+        return;
+      }
+      if (err?.isAxiosError) {
+        console.log("🚀 ~ LandingPage.tsx ~ onPressApple ~ network/backend error:", err);
+        setErrorMessage("Please check your internet connection.");
+        return;
+      }
+      // SecureStore or unknown error
+      console.log("🚀 ~ LandingPage.tsx ~ onPressApple ~ unexpected error:", {
+        code: err?.code,
+        message: err?.message,
+        name: err?.constructor?.name,
+      });
+      setErrorMessage("Something went wrong. Please try again.");
     }
   };
 
@@ -80,6 +112,17 @@ const LandingPage = () => {
             onPress={onPressGoogle}
             // disabled={}
           />
+
+          {Platform.OS === "ios" && (
+            <AppleAuthentication.AppleAuthenticationButton
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+              cornerRadius={5}
+              style={{ width: 192, height: 44 }}
+              onPress={onPressApple}
+            />
+          )}
+
           {/* <Pressable style={AuthStyles.link}>
             <Text style={AuthStyles.linkText}>Forgot password?</Text>
           </Pressable> */}
