@@ -58,7 +58,8 @@ type AuthActionType =
   | { type: "SIGNUP_REQUIRES_VERIFICATION" }
   | { type: "SESSION_EXPIRED" }
   | { type: "GOOGLE_LINKED" }
-  | { type: "GOOGLE_UNLINKED" };
+  | { type: "GOOGLE_UNLINKED" }
+  | { type: "PASSWORD_SET"; payload?: { email?: string } };
 
 // Define reducer function
 // React's useReducer expects a reducer signature like: (state: StateType, action: { type: string; payload?: any }) => StateType
@@ -159,6 +160,16 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       return { ...state, capabilities: { ...state.capabilities, hasGoogle: true } };
     case "GOOGLE_UNLINKED":
       return { ...state, capabilities: { ...state.capabilities, hasGoogle: false } };
+    case "PASSWORD_SET":
+      return {
+        ...state,
+        email: action.payload?.email ?? state.email,
+        capabilities: {
+          ...state.capabilities,
+          hasPassword: true,
+          emailVerified: action.payload?.email ? false : state.capabilities.emailVerified,
+        },
+      };
     default:
       // console.log("🚀 ~AuthAction is something else... State remains unchanged...");
       return state;
