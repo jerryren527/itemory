@@ -41,7 +41,16 @@ const useGoogleSignIn = () => {
 
         dispatch({
           type: "LOGIN_SUCCEEDED",
-          payload: { accessToken: res.data.access_token, authProvider: "google" },
+          payload: {
+            email: res.data.email,
+            userId: res.data.id,
+            hasPassword: res.data.has_password,
+            emailVerified: res.data.email_verified,
+            hasGoogle: res.data.google_account_linked,
+            accessToken: res.data.access_token,
+            authProvider: "google",
+            primaryHome: res.data.primary_home,
+          },
         });
 
         router.replace("/");

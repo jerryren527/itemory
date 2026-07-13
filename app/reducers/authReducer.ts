@@ -108,7 +108,7 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       return {
         ...state,
         userId: action.payload?.userId,
-        email: action.payload?.email,
+        email: action.payload?.email ?? state.email,
         userState: "authenticated" as UserStateType,
         capabilities: capabilities,
         tokens: tokens,
