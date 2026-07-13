@@ -22,7 +22,7 @@ const SettingsScreen = () => {
   // Apple-only accounts (no Google linked) may have an Apple private-relay email on
   // file, so they must supply a real email address when setting a password. Accounts
   // with Google linked already have a real email saved, so no email field is needed.
-  const requiresEmail = !state.capabilities.hasGoogle;
+  const requiresEmail = !state.capabilities.hasGoogle && !state.capabilities.emailVerified;
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -104,7 +104,9 @@ const SettingsScreen = () => {
     try {
       await api.post(
         "/app/password/set",
-        requiresEmail ? { email, password, confirm_password: confirmPassword } : { password, confirm_password: confirmPassword },
+        requiresEmail
+          ? { email, password, confirm_password: confirmPassword }
+          : { password, confirm_password: confirmPassword },
         { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } },
       );
 
@@ -130,41 +132,47 @@ const SettingsScreen = () => {
 
       {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
 
-      {!state.capabilities.hasPassword &&
-        (showSetPasswordForm ? (
-          <View style={{ alignItems: "center", gap: 8 }}>
-            {requiresEmail && (
-              <TextInput
-                placeholder="Email"
-                placeholderTextColor="grey"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                inputMode="email"
-                style={{ borderWidth: 1, borderColor: "grey", borderRadius: 4, padding: 8, width: 220 }}
-              />
-            )}
+      {showSetPasswordForm ? (
+        <View style={{ alignItems: "center", gap: 8 }}>
+          {requiresEmail && (
             <TextInput
-              placeholder="Password"
+              placeholder="Email"
               placeholderTextColor="grey"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              inputMode="email"
               style={{ borderWidth: 1, borderColor: "grey", borderRadius: 4, padding: 8, width: 220 }}
             />
-            <TextInput
-              placeholder="Confirm Password"
-              placeholderTextColor="grey"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              style={{ borderWidth: 1, borderColor: "grey", borderRadius: 4, padding: 8, width: 220 }}
-            />
-            <Button title="Set Password" onPress={handleSetPassword} disabled={settingPassword} />
-          </View>
-        ) : (
-          <Button title="Set Password" onPress={() => setShowSetPasswordForm(true)} />
-        ))}
+          )}
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="grey"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={{ borderWidth: 1, borderColor: "grey", borderRadius: 4, padding: 8, width: 220 }}
+          />
+          <TextInput
+            placeholder="Confirm Password"
+            placeholderTextColor="grey"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            style={{ borderWidth: 1, borderColor: "grey", borderRadius: 4, padding: 8, width: 220 }}
+          />
+          <Button
+            title={state.capabilities.hasPassword ? "Change Password" : "Set Password"}
+            onPress={handleSetPassword}
+            disabled={settingPassword}
+          />
+        </View>
+      ) : (
+        <Button
+          title={state.capabilities.hasPassword ? "Change Password" : "Set Password"}
+          onPress={() => setShowSetPasswordForm(true)}
+        />
+      )}
 
       {state.capabilities.hasGoogle ? (
         <Button title="Unlink Google" onPress={handleUnlinkGoogle} disabled={unlinking} />

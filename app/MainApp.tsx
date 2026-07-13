@@ -101,6 +101,7 @@ const MainApp = () => {
           }}
         >
           <Text>Main App UI</Text>
+          <Text>Email: {state.email ?? "No email available"}</Text>
           <Button title="Settings" onPress={() => router.push("/SettingsScreen")} />
           <Button title="Logout" onPress={handleLogout} />
           <Button title="Test" onPress={handleTestCall} />
