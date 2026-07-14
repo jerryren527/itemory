@@ -11,12 +11,18 @@ const useAppleSignIn = () => {
   const router = useRouter();
   const { dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
 
-  const completeSignIn = async (res: { data: { refresh_token: string; access_token: string } }) => {
+  const completeSignIn = async (res: any) => {
     await SecureStore.setItemAsync("refreshToken", res.data.refresh_token);
 
     dispatch({
       type: "LOGIN_SUCCEEDED",
-      payload: { accessToken: res.data.access_token, authProvider: "apple" },
+      payload: {
+        accessToken: res.data.access_token,
+        authProvider: "apple",
+        email: res.data.email,
+        userId: res.data.id,
+        hasApple: res.data.apple_account_linked,
+      },
     });
 
     router.replace("/");

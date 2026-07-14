@@ -14,6 +14,7 @@ export const initialState: AuthState = {
   capabilities: {
     hasPassword: null,
     hasGoogle: null,
+    hasApple: null,
     emailVerified: null,
   },
   tokens: {
@@ -70,6 +71,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): ReactElement => {
         // console.log("🚀 ~ auth-context.tsx:70 ~ bootstrapAuth ~ has_password:", has_password);
         const google_account_linked = res2.data?.google_account_linked;
         // console.log("🚀 ~ auth-context.tsx:72 ~ bootstrapAuth ~ google_account_linked:", google_account_linked);
+        const apple_account_linked = res2.data?.apple_account_linked;
         const google_sub = res2.data?.google_sub;
         // console.log("🚀 ~ auth-context.tsx:74 ~ bootstrapAuth ~ google_sub:", google_sub);
         const id = res2.data?.id;
@@ -89,6 +91,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): ReactElement => {
             emailVerified: email_verified,
             hasPassword: has_password,
             hasGoogle: google_account_linked,
+            hasApple: apple_account_linked,
             id: id,
             primaryHome: primaryHome,
           },

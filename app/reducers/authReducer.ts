@@ -12,6 +12,7 @@ const nullInitialState = {
   capabilities: {
     hasPassword: null,
     hasGoogle: null,
+    hasApple: null,
     emailVerified: null,
   },
   tokens: {
@@ -37,6 +38,7 @@ type AuthActionType =
         hasPassword: boolean;
         emailVerified: boolean;
         hasGoogle: boolean;
+        hasApple: boolean;
         accessToken: string;
         authProvider: string;
         primaryHome: string | null;
@@ -50,6 +52,7 @@ type AuthActionType =
         emailVerified: boolean;
         hasPassword: boolean;
         hasGoogle: boolean;
+        hasApple: boolean;
         id: number;
         primaryHome: string;
       };
@@ -59,6 +62,8 @@ type AuthActionType =
   | { type: "SESSION_EXPIRED" }
   | { type: "GOOGLE_LINKED" }
   | { type: "GOOGLE_UNLINKED" }
+  | { type: "APPLE_LINKED" }
+  | { type: "APPLE_UNLINKED" }
   | { type: "PASSWORD_SET"; payload?: { email?: string } };
 
 // Define reducer function
@@ -98,6 +103,7 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
         hasPassword: action.payload?.hasPassword,
         emailVerified: action.payload?.emailVerified,
         hasGoogle: action.payload?.hasGoogle,
+        hasApple: action.payload?.hasApple,
       };
 
       const tokens = {
@@ -140,6 +146,7 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       const hasPassword = action.payload?.hasPassword;
       const emailVerified = action.payload?.emailVerified;
       const hasGoogle = action.payload?.hasGoogle;
+      const hasApple = action.payload?.hasApple;
       const id = action.payload?.id;
       const primaryHome = action.payload?.primaryHome;
 
@@ -148,6 +155,7 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       newState.capabilities.hasPassword = hasPassword;
       newState.capabilities.emailVerified = emailVerified;
       newState.capabilities.hasGoogle = hasGoogle;
+      newState.capabilities.hasApple = hasApple;
       // Other
       newState.userId = id;
       newState.email = email;
@@ -160,6 +168,10 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       return { ...state, capabilities: { ...state.capabilities, hasGoogle: true } };
     case "GOOGLE_UNLINKED":
       return { ...state, capabilities: { ...state.capabilities, hasGoogle: false } };
+    case "APPLE_LINKED":
+      return { ...state, capabilities: { ...state.capabilities, hasApple: true } };
+    case "APPLE_UNLINKED":
+      return { ...state, capabilities: { ...state.capabilities, hasApple: false } };
     case "PASSWORD_SET":
       return {
         ...state,
