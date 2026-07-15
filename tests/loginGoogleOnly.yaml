@@ -1,0 +1,30 @@
+appId: com.itemory
+---
+# Run Setup Flow
+- runFlow: ../tests/setupEmulator.yaml
+# Login with with Google-only user -> "is a Google-only user and has not set up a password yet. Sign in with Google" error message
+- assertVisible: Log In
+- tapOn: Log In
+- assertVisible:
+    text: Email
+    index: 1
+- tapOn:
+    text: Email
+    index: 1
+- inputText: googleonlyuser@example.com
+- assertVisible:
+    text: Password
+    index: 1
+- tapOn:
+    text: Password
+    index: 1
+- inputText: Password123!!!
+- assertVisible: SUBMIT
+- tapOn: SUBMIT
+# - tapOn:
+#     text: Not now
+#     optional: true
+# - tapOn:
+#     text: "Never"
+#     optional: true
+- assertVisible: googleonlyuser@example.com is a Google-only user and has not set up a password yet. Sign in with Google.

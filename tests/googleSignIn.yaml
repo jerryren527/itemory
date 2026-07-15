@@ -1,0 +1,11 @@
+appId: com.itemory
+---
+# Run Setup Flow
+# Must run this on Android phone. On emulator, Google-sign-in returns a developer error.
+- runFlow: ../tests/setupPhone.yaml
+# Log in with Google-only user -> "This email is already linked to Google. Please Log in with Google." error message
+- assertVisible: Sign in with Google
+- tapOn: Sign in with Google
+- assertVisible: jerryren.work@gmail.com
+- tapOn: jerryren.work@gmail.com
+- assertVisible: Logout

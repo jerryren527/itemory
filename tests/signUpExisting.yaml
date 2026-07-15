@@ -1,0 +1,37 @@
+appId: com.itemory
+---
+# Run Setup Flow
+- runFlow: ../tests/setupEmulator.yaml
+# Sign up with email of an existing account -> "An account with this email address already exists." error.
+- assertVisible: Sign Up
+- tapOn: Sign Up
+- assertVisible:
+    text: Email
+    index: 1
+- tapOn:
+    text: Email
+    index: 1
+- inputText: successuser@example.com
+- assertVisible:
+    text: Password
+    index: 1
+- tapOn:
+    text: Password
+    index: 1
+- inputText: Password123!!!
+- assertVisible:
+    text: Confirm Password
+    index: 1
+- tapOn:
+    text: Confirm Password
+    index: 1
+- inputText: Password123!!!
+- assertVisible: SUBMIT
+- tapOn: SUBMIT
+# - tapOn:
+#     text: Not now
+#     optional: true
+# - tapOn:
+#     text: "Never"
+#     optional: true
+- assertVisible: An account with this email address already exists.
