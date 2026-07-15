@@ -9,6 +9,7 @@ export type UserStateType =
 type CapabilitiesType = {
   hasPassword: boolean | null;
   hasGoogle: boolean | null;
+  hasApple: boolean | null;
   emailVerified: boolean | null; // TODO: Remove maybe because login with unverified email is 401
 };
 

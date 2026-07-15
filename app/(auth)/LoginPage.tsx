@@ -104,7 +104,7 @@ const LoginPage = () => {
       // reroute to (auth)/index.tsx
       router.replace("/");
     } catch (err) {
-      console.error("🚀 ~ LoginPage.tsx:53 ~ onSubmit ~ err:", err);
+      // console.error("🚀 ~ LoginPage.tsx:53 ~ onSubmit ~ err:", err);
       // setErrorMessage("Network error. Check your internet.");
       if (axios.isAxiosError(err)) {
         if (err.response) {

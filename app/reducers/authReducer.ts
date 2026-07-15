@@ -12,6 +12,7 @@ const nullInitialState = {
   capabilities: {
     hasPassword: null,
     hasGoogle: null,
+    hasApple: null,
     emailVerified: null,
   },
   tokens: {
@@ -37,6 +38,7 @@ type AuthActionType =
         hasPassword: boolean;
         emailVerified: boolean;
         hasGoogle: boolean;
+        hasApple: boolean;
         accessToken: string;
         authProvider: string;
         primaryHome: string | null;
@@ -50,13 +52,19 @@ type AuthActionType =
         emailVerified: boolean;
         hasPassword: boolean;
         hasGoogle: boolean;
+        hasApple: boolean;
         id: number;
         primaryHome: string;
       };
     } // TODO: is authProvider necessary in payload when session is restored?
   | { type: "LOGIN_REQUIRES_VERIFICATION" }
   | { type: "SIGNUP_REQUIRES_VERIFICATION" }
-  | { type: "SESSION_EXPIRED" };
+  | { type: "SESSION_EXPIRED" }
+  | { type: "GOOGLE_LINKED" }
+  | { type: "GOOGLE_UNLINKED" }
+  | { type: "APPLE_LINKED" }
+  | { type: "APPLE_UNLINKED" }
+  | { type: "PASSWORD_SET"; payload?: { email?: string } };
 
 // Define reducer function
 // React's useReducer expects a reducer signature like: (state: StateType, action: { type: string; payload?: any }) => StateType
@@ -95,6 +103,7 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
         hasPassword: action.payload?.hasPassword,
         emailVerified: action.payload?.emailVerified,
         hasGoogle: action.payload?.hasGoogle,
+        hasApple: action.payload?.hasApple,
       };
 
       const tokens = {
@@ -105,7 +114,7 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       return {
         ...state,
         userId: action.payload?.userId,
-        email: action.payload?.email,
+        email: action.payload?.email ?? state.email,
         userState: "authenticated" as UserStateType,
         capabilities: capabilities,
         tokens: tokens,
@@ -137,6 +146,7 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       const hasPassword = action.payload?.hasPassword;
       const emailVerified = action.payload?.emailVerified;
       const hasGoogle = action.payload?.hasGoogle;
+      const hasApple = action.payload?.hasApple;
       const id = action.payload?.id;
       const primaryHome = action.payload?.primaryHome;
 
@@ -145,6 +155,7 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       newState.capabilities.hasPassword = hasPassword;
       newState.capabilities.emailVerified = emailVerified;
       newState.capabilities.hasGoogle = hasGoogle;
+      newState.capabilities.hasApple = hasApple;
       // Other
       newState.userId = id;
       newState.email = email;
@@ -153,6 +164,24 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       newState.primaryHome = primaryHome;
 
       return newState as AuthState;
+    case "GOOGLE_LINKED":
+      return { ...state, capabilities: { ...state.capabilities, hasGoogle: true } };
+    case "GOOGLE_UNLINKED":
+      return { ...state, capabilities: { ...state.capabilities, hasGoogle: false } };
+    case "APPLE_LINKED":
+      return { ...state, capabilities: { ...state.capabilities, hasApple: true } };
+    case "APPLE_UNLINKED":
+      return { ...state, capabilities: { ...state.capabilities, hasApple: false } };
+    case "PASSWORD_SET":
+      return {
+        ...state,
+        email: action.payload?.email ?? state.email,
+        capabilities: {
+          ...state.capabilities,
+          hasPassword: true,
+          emailVerified: action.payload?.email ? false : state.capabilities.emailVerified,
+        },
+      };
     default:
       // console.log("🚀 ~AuthAction is something else... State remains unchanged...");
       return state;
