@@ -1,0 +1,10 @@
+appId: com.itemory
+---
+- launchApp:
+    clearState: true
+- assertVisible: Scan QR Code
+- tapOn: Scan QR Code
+- assertVisible: Continue
+- tapOn: Continue
+- assertVisible: Close
+- tapOn: Close

@@ -1,0 +1,11 @@
+appId: com.itemory
+---
+- launchApp:
+    clearState: true
+- assertVisible: DEVELOPMENT SERVERS
+- tapOn:
+    point: 50%,26%
+- assertVisible: Continue
+- tapOn: Continue
+- assertVisible: Close
+- tapOn: Close

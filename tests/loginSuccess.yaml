@@ -1,0 +1,29 @@
+appId: com.itemory
+---
+# Run Setup Flow
+- runFlow: ../tests/setupEmulator.yaml
+- assertVisible: Log In
+- tapOn: Log In
+- assertVisible:
+    text: Email
+    index: 1
+- tapOn:
+    text: Email
+    index: 1
+- inputText: successUser@example.com
+- assertVisible:
+    text: Password
+    index: 1
+- tapOn:
+    text: Password
+    index: 1
+- inputText: Password123!!!
+- assertVisible: SUBMIT
+- tapOn: SUBMIT
+# - tapOn:
+#     text: Not now
+#     optional: true
+# - tapOn:
+#     text: "Never"
+#     optional: true
+- assertVisible: Logout
