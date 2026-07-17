@@ -1,5 +1,6 @@
+import MainApp from "@/app/MainApp";
 import { Text } from "react-native";
 
 export default function Index() {
-  return <Text>Profile</Text>;
+  return <MainApp />;
 }

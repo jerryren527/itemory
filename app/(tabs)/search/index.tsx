@@ -1,5 +1,5 @@
-import MainApp from "@/app/MainApp";
+import { Text } from "@react-navigation/elements";
 
 export default function Index() {
-  return <MainApp />;
+  return <Text>Search</Text>;
 }
