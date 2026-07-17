@@ -9,6 +9,7 @@ import React, { createContext, ReactElement, ReactNode, useEffect, useReducer } 
 export const initialState: AuthState = {
   userId: null,
   email: null,
+  googleEmail: null,
   userState: "initializing",
   primaryHome: null,
   capabilities: {
@@ -73,6 +74,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): ReactElement => {
         // console.log("🚀 ~ auth-context.tsx:72 ~ bootstrapAuth ~ google_account_linked:", google_account_linked);
         const apple_account_linked = res2.data?.apple_account_linked;
         const google_sub = res2.data?.google_sub;
+        const google_email = res2.data?.google_email;
         // console.log("🚀 ~ auth-context.tsx:74 ~ bootstrapAuth ~ google_sub:", google_sub);
         const id = res2.data?.id;
         // console.log("🚀 ~ auth-context.tsx:76 ~ bootstrapAuth ~ id:", id);
@@ -88,6 +90,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): ReactElement => {
           payload: {
             accessToken: newAccessToken,
             email: email,
+            googleEmail: google_email,
             emailVerified: email_verified,
             hasPassword: has_password,
             hasGoogle: google_account_linked,

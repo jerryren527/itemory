@@ -43,6 +43,7 @@ const useGoogleSignIn = () => {
           type: "LOGIN_SUCCEEDED",
           payload: {
             email: res.data.email,
+            googleEmail: res.data.google_email,
             userId: res.data.id,
             hasPassword: res.data.has_password,
             emailVerified: res.data.email_verified,

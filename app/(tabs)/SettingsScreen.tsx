@@ -38,13 +38,13 @@ const SettingsScreen = () => {
       if (isSuccessResponse(response)) {
         const { idToken } = response.data;
 
-        await api.post(
+        const res = await api.post(
           "/app/google/link",
           { idToken },
           { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } },
         );
 
-        dispatch({ type: "GOOGLE_LINKED" });
+        dispatch({ type: "GOOGLE_LINKED", payload: { email: res.data.google_email } });
       }
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -142,14 +142,20 @@ const SettingsScreen = () => {
       />
 
       {state.capabilities.hasGoogle ? (
-        <Button title="Unlink Google" onPress={handleUnlinkGoogle} disabled={unlinking} />
+        <View style={{ alignItems: "center", gap: 4 }}>
+          <Text style={{ color: "grey" }}>{state.googleEmail}</Text>
+          <Button title="Unlink Google" onPress={handleUnlinkGoogle} disabled={unlinking} />
+        </View>
       ) : (
         <Button title="Link Google Account" onPress={handleLinkGoogle} disabled={linking} />
       )}
 
       {Platform.OS === "ios" &&
         (state.capabilities.hasApple ? (
-          <Button title="Unlink Apple" onPress={handleUnlinkApple} disabled={unlinkingApple} />
+          <View style={{ alignItems: "center", gap: 4 }}>
+            <Text style={{ color: "grey" }}>Connected</Text>
+            <Button title="Unlink Apple" onPress={handleUnlinkApple} disabled={unlinkingApple} />
+          </View>
         ) : (
           <Button title="Link Apple Account" onPress={handleLinkApple} disabled={linkingApple} />
         ))}
