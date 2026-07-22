@@ -13,8 +13,7 @@ export default function TabsLayout() {
 
   return (
     <Tabs>
-      <Tabs.Screen name="search" options={{ title: "Search" }} />
-      <Tabs.Screen name="places" options={{ title: "Places" }} />
+      <Tabs.Screen name="places" options={{ title: "Places", headerShown: false }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
       <Tabs.Screen
         name="SettingsScreen"
