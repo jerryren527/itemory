@@ -67,7 +67,8 @@ type AuthActionType =
   | { type: "GOOGLE_UNLINKED" }
   | { type: "APPLE_LINKED" }
   | { type: "APPLE_UNLINKED" }
-  | { type: "PASSWORD_SET"; payload?: { email?: string } };
+  | { type: "PASSWORD_SET"; payload?: { email?: string } }
+  | { type: "PRIMARY_HOME_SET"; payload: { primaryHome: number } };
 
 // Define reducer function
 // React's useReducer expects a reducer signature like: (state: StateType, action: { type: string; payload?: any }) => StateType
@@ -182,6 +183,8 @@ function authReducer(state: AuthState, action: AuthActionType): AuthState {
       return { ...state, capabilities: { ...state.capabilities, hasApple: true } };
     case "APPLE_UNLINKED":
       return { ...state, capabilities: { ...state.capabilities, hasApple: false } };
+    case "PRIMARY_HOME_SET":
+      return { ...state, primaryHome: action.payload.primaryHome };
     case "PASSWORD_SET":
       return {
         ...state,
