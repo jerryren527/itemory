@@ -18,7 +18,7 @@ import { router, Stack, useFocusEffect, useLocalSearchParams } from "expo-router
 import { useCallback, useContext, useState } from "react";
 import { ActivityIndicator, Alert, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-type ItemField = "name" | "description" | "quantity" | "comment" | "picture";
+type ItemField = "name" | "description" | "comment" | "picture";
 
 const ITEM_FIELD_CONFIG: Record<
   ItemField,
@@ -26,16 +26,20 @@ const ITEM_FIELD_CONFIG: Record<
 > = {
   name: { title: "Rename Item", placeholder: "Name" },
   description: { title: "Edit Description", placeholder: "Description", multiline: true },
-  quantity: { title: "Edit Quantity", placeholder: "Quantity", keyboardType: "number-pad" },
   comment: { title: "Edit Comment", placeholder: "Comment", multiline: true },
   picture: { title: "Edit Picture URL", placeholder: "https://..." },
 };
+
+type ItemCheckout = { user_id: number; username: string; quantity: number };
 
 type NodeDetails = {
   name: string;
   description: string | null;
   picture: string | null;
   quantity?: number;
+  available_quantity?: number;
+  checkouts?: ItemCheckout[];
+  can_manage_checkouts?: boolean;
   expiration_date?: string | null;
   category?: string | null;
   tags?: string[] | null;
@@ -59,8 +63,6 @@ function getItemFieldValue(item: NodeDetails, field: ItemField): string {
       return item.name;
     case "description":
       return item.description ?? "";
-    case "quantity":
-      return String(item.quantity ?? 1);
     case "comment":
       return item.comment ?? "";
     case "picture":
@@ -152,8 +154,6 @@ export default function NodeScreen() {
     try {
       if (field === "name") {
         await api.post(`/app/place-node/item/${nodeId}/rename`, { name: rawValue.trim() }, authHeaders);
-      } else if (field === "quantity") {
-        await api.post(`/app/item/${nodeId}/update`, { quantity: Number(rawValue) || 1 }, authHeaders);
       } else {
         await api.post(`/app/item/${nodeId}/update`, { [field]: rawValue.trim() || null }, authHeaders);
       }
@@ -179,6 +179,19 @@ export default function NodeScreen() {
         keyboardType: config.keyboardType,
         autoCapitalize: field === "picture" ? "none" : "sentences",
         showClear: field === "comment" || field === "description" ? "true" : "false",
+      },
+    });
+  };
+
+  const openQuantity = (item: NodeDetails) => {
+    pushModal({
+      pathname: "/(tabs)/places/edit-quantity",
+      params: {
+        itemId: String(nodeId),
+        quantity: String(item.quantity ?? 1),
+        availableQuantity: String(item.available_quantity ?? item.quantity ?? 1),
+        checkouts: JSON.stringify(item.checkouts ?? []),
+        canManageCheckouts: item.can_manage_checkouts ? "true" : "false",
       },
     });
   };
@@ -400,8 +413,12 @@ export default function NodeScreen() {
           />
           <PressableDetailRow
             label="Quantity"
-            value={String(item.quantity ?? 1)}
-            onPress={() => openItemField(item, "quantity")}
+            value={
+              item.available_quantity != null && item.available_quantity !== item.quantity
+                ? `${item.available_quantity} of ${item.quantity ?? 1} available`
+                : String(item.quantity ?? 1)
+            }
+            onPress={() => openQuantity(item)}
           />
           <PressableDetailRow label="Category" value={categoryLabel} onPress={() => openCategoryPicker(item)} />
           <PressableDetailRow label="Expires" value={item.expiration_date || "—"} onPress={handleExpiresPress} />
