@@ -21,6 +21,7 @@ type TokenType = {
 export type AuthState = {
   userId: number | null;
   email: string | null;
+  username: string | null;
   googleEmail: string | null;
   primaryHome: number | null;
   userState: UserStateType;

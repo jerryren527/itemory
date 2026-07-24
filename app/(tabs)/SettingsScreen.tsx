@@ -1,3 +1,4 @@
+import TextPromptModal from "@/components/TextPromptModal";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
@@ -16,6 +17,9 @@ const SettingsScreen = () => {
   const [unlinking, setUnlinking] = useState<boolean>(false);
   const [linkingApple, setLinkingApple] = useState<boolean>(false);
   const [unlinkingApple, setUnlinkingApple] = useState<boolean>(false);
+  const [editingUsername, setEditingUsername] = useState<boolean>(false);
+  const [savingUsername, setSavingUsername] = useState<boolean>(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -109,6 +113,32 @@ const SettingsScreen = () => {
     }
   };
 
+  const handleSaveUsername = async (username: string) => {
+    if (savingUsername) return;
+
+    setSavingUsername(true);
+    setUsernameError(null);
+
+    try {
+      await api.post(
+        "/app/username",
+        { username: username.trim() },
+        { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } },
+      );
+
+      dispatch({ type: "USERNAME_SET", payload: { username: username.trim() } });
+      setEditingUsername(false);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setUsernameError(err.response?.data?.message ?? "Could not update username.");
+      } else {
+        setUsernameError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setSavingUsername(false);
+    }
+  };
+
   const handleUnlinkApple = async () => {
     if (unlinkingApple) return;
 
@@ -135,6 +165,26 @@ const SettingsScreen = () => {
       <Text style={{ fontSize: 20, fontWeight: "600" }}>Settings</Text>
 
       {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
+
+      <View style={{ alignItems: "center", gap: 4 }}>
+        <Text style={{ color: "grey" }}>@{state.username}</Text>
+        <Button title="Change Username" onPress={() => setEditingUsername(true)} />
+      </View>
+
+      <TextPromptModal
+        visible={editingUsername}
+        title="Change Username"
+        placeholder="Username"
+        initialValue={state.username ?? ""}
+        autoCapitalize="none"
+        loading={savingUsername}
+        errorMessage={usernameError}
+        onSubmit={handleSaveUsername}
+        onCancel={() => {
+          setEditingUsername(false);
+          setUsernameError(null);
+        }}
+      />
 
       <Button
         title={state.capabilities.hasPassword ? "Change Password" : "Set Password"}

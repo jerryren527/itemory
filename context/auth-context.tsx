@@ -9,6 +9,7 @@ import React, { createContext, ReactElement, ReactNode, useEffect, useReducer } 
 export const initialState: AuthState = {
   userId: null,
   email: null,
+  username: null,
   googleEmail: null,
   userState: "initializing",
   primaryHome: null,
@@ -66,6 +67,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): ReactElement => {
 
         const email = res2["data"]["email"];
         // console.log("🚀 ~ auth-context.tsx:66 ~ bootstrapAuth ~ email:", email);
+        const username = res2.data?.username;
         const email_verified = res2.data?.email_verified;
         // console.log("🚀 ~ auth-context.tsx:68 ~ bootstrapAuth ~ email_verified:", email_verified);
         const has_password = res2.data?.has_password;
@@ -90,6 +92,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): ReactElement => {
           payload: {
             accessToken: newAccessToken,
             email: email,
+            username: username,
             googleEmail: google_email,
             emailVerified: email_verified,
             hasPassword: has_password,
