@@ -15,6 +15,7 @@ type PlaceRowProps = {
   onPress: (item: PlaceRowItem) => void;
   subtitle?: string;
   onMenuPress?: (item: PlaceRowItem) => void;
+  onReturnPress?: (item: PlaceRowItem) => void;
 };
 
 const ICON_BY_TYPE: Record<PlaceRowItem["type"], keyof typeof MaterialCommunityIcons.glyphMap> = {
@@ -23,7 +24,7 @@ const ICON_BY_TYPE: Record<PlaceRowItem["type"], keyof typeof MaterialCommunityI
   item: "cube-outline",
 };
 
-export default function PlaceRow({ item, onPress, subtitle, onMenuPress }: PlaceRowProps) {
+export default function PlaceRow({ item, onPress, subtitle, onMenuPress, onReturnPress }: PlaceRowProps) {
   return (
     <View
       style={{
@@ -52,6 +53,12 @@ export default function PlaceRow({ item, onPress, subtitle, onMenuPress }: Place
           )}
         </View>
       </TouchableOpacity>
+
+      {onReturnPress && (
+        <TouchableOpacity onPress={() => onReturnPress(item)} hitSlop={12} style={{ paddingHorizontal: 16 }}>
+          <Text style={{ color: "#2563EB", fontWeight: "600" }}>Return</Text>
+        </TouchableOpacity>
+      )}
 
       {onMenuPress && (
         <TouchableOpacity onPress={() => onMenuPress(item)} hitSlop={12} style={{ padding: 16 }}>
