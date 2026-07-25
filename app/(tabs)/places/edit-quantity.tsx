@@ -3,11 +3,14 @@ import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
 import { backModal, pushModal } from "@/utils/modalNav";
-import { setPendingTextCallback } from "@/utils/textSelectionBridge";
+import { setPendingOptionCallback } from "@/utils/optionSelectionBridge";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useContext, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+
+const QUANTITY_OPTIONS = Array.from({ length: 100 }, (_, n) => ({ label: String(n), value: String(n) }));
 
 type Checkout = { user_id: number; username: string; quantity: number };
 
@@ -35,7 +38,6 @@ export default function EditQuantityScreen() {
   const [total, setTotal] = useState(quantity ?? "1");
   const [available, setAvailable] = useState(Number(availableQuantity ?? quantity ?? 0));
   const [checkoutList, setCheckoutList] = useState<Checkout[]>(() => parseCheckouts(checkouts));
-  const [checkoutInput, setCheckoutInput] = useState("");
   const [saving, setSaving] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
@@ -50,52 +52,54 @@ export default function EditQuantityScreen() {
   const errorMessageFrom = (err: unknown) =>
     axios.isAxiosError(err) ? (err.response?.data?.message ?? "Something went wrong.") : "Something went wrong.";
 
-  const handleSaveTotal = async () => {
-    const newTotal = Number(total);
-    if (!Number.isFinite(newTotal) || newTotal < 0) {
-      Alert.alert("Error", "Enter a valid quantity.");
-      return;
-    }
-    setSaving(true);
-    try {
-      const res = await api.post(`/app/item/${itemId}/update`, { quantity: newTotal }, authHeaders);
-      applyServerState(res.data);
-    } catch (err) {
-      Alert.alert("Error", errorMessageFrom(err));
-    } finally {
-      setSaving(false);
-    }
+  const openTotalPicker = () => {
+    setPendingOptionCallback(async (value) => {
+      const newTotal = Number(value);
+      setSaving(true);
+      try {
+        const res = await api.post(`/app/item/${itemId}/update`, { quantity: newTotal }, authHeaders);
+        applyServerState(res.data);
+      } catch (err) {
+        Alert.alert("Error", errorMessageFrom(err));
+      } finally {
+        setSaving(false);
+      }
+    });
+    pushModal({
+      pathname: "/(tabs)/places/pick-option",
+      params: { title: "Total Quantity", value: total, options: JSON.stringify(QUANTITY_OPTIONS), layout: "centered" },
+    });
   };
 
-  const handleCheckout = async () => {
-    const qty = Number(checkoutInput);
-    if (!Number.isFinite(qty) || qty <= 0) {
-      Alert.alert("Error", "Enter a quantity to check out.");
-      return;
-    }
-    if (qty > available) {
-      Alert.alert("Error", `Only ${available} available.`);
-      return;
-    }
-    setSaving(true);
-    try {
-      const res = await api.post(`/app/item/${itemId}/checkout`, { quantity: qty }, authHeaders);
-      applyServerState(res.data);
-      setCheckoutInput("");
-    } catch (err) {
-      Alert.alert("Error", errorMessageFrom(err));
-    } finally {
-      setSaving(false);
-    }
+  const openCheckoutPicker = () => {
+    if (available <= 0) return;
+    setPendingOptionCallback(async (value) => {
+      const qty = Number(value);
+      setSaving(true);
+      try {
+        const res = await api.post(`/app/item/${itemId}/checkout`, { quantity: qty }, authHeaders);
+        applyServerState(res.data);
+      } catch (err) {
+        Alert.alert("Error", errorMessageFrom(err));
+      } finally {
+        setSaving(false);
+      }
+    });
+    pushModal({
+      pathname: "/(tabs)/places/pick-option",
+      params: {
+        title: "Check Out",
+        options: JSON.stringify(
+          Array.from({ length: available }, (_, i) => ({ label: String(i + 1), value: String(i + 1) })),
+        ),
+        layout: "centered",
+      },
+    });
   };
 
   const handleReturn = (entry: Checkout) => {
-    setPendingTextCallback(async (value) => {
+    setPendingOptionCallback(async (value) => {
       const qty = Number(value);
-      if (!Number.isFinite(qty) || qty <= 0 || qty > entry.quantity) {
-        Alert.alert("Error", `Enter a quantity between 1 and ${entry.quantity}.`);
-        return;
-      }
       try {
         const res = await api.post(
           `/app/item/${itemId}/return`,
@@ -108,13 +112,14 @@ export default function EditQuantityScreen() {
       }
     });
     pushModal({
-      pathname: "/(tabs)/places/edit-text",
+      pathname: "/(tabs)/places/pick-option",
       params: {
         title: entry.user_id === state.userId ? "Return Quantity" : `Return from @${entry.username}`,
-        placeholder: "Quantity",
-        initialValue: String(entry.quantity),
-        submitLabel: "Return",
-        keyboardType: "number-pad",
+        value: String(entry.quantity),
+        options: JSON.stringify(
+          Array.from({ length: entry.quantity }, (_, i) => ({ label: String(i + 1), value: String(i + 1) })),
+        ),
+        layout: "centered",
       },
     });
   };
@@ -129,58 +134,50 @@ export default function EditQuantityScreen() {
       />
       <View style={{ flex: 1, padding: 16 }}>
         <Text style={{ color: "grey", fontSize: 13, marginBottom: 4 }}>Total Quantity</Text>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 }}>
-          <TextInput
-            value={total}
-            onChangeText={setTotal}
-            keyboardType="number-pad"
-            style={{
-              flex: 1,
-              borderColor: "#ccc",
-              borderWidth: 1,
-              borderRadius: 8,
-              paddingHorizontal: 12,
-              paddingVertical: 10,
-              fontSize: 16,
-            }}
-          />
-          <TouchableOpacity
-            onPress={handleSaveTotal}
-            disabled={saving}
-            style={{ paddingHorizontal: 12, paddingVertical: 10 }}
-          >
-            {saving ? <ActivityIndicator /> : <Text style={{ color: "#2563EB", fontWeight: "600" }}>Save</Text>}
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={openTotalPicker}
+          disabled={saving}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderColor: "#ccc",
+            borderWidth: 1,
+            borderRadius: 8,
+            paddingHorizontal: 12,
+            paddingVertical: 10,
+            marginBottom: 16,
+          }}
+        >
+          <Text style={{ fontSize: 16 }}>{total}</Text>
+          {saving ? <ActivityIndicator /> : <MaterialCommunityIcons name="chevron-down" size={18} color="#555" />}
+        </TouchableOpacity>
 
         <Text style={{ fontSize: 14, marginBottom: 16 }}>
           Available: <Text style={{ fontWeight: "600" }}>{available}</Text>
         </Text>
 
         <Text style={{ color: "grey", fontSize: 13, marginBottom: 4 }}>Check Out</Text>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <TextInput
-            value={checkoutInput}
-            onChangeText={setCheckoutInput}
-            keyboardType="number-pad"
-            placeholder="Quantity"
-            placeholderTextColor="grey"
+        <View style={{ marginBottom: 20 }}>
+          <TouchableOpacity
+            onPress={openCheckoutPicker}
+            disabled={saving || available <= 0}
             style={{
-              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
               borderColor: "#ccc",
               borderWidth: 1,
               borderRadius: 8,
               paddingHorizontal: 12,
               paddingVertical: 10,
-              fontSize: 16,
+              opacity: available <= 0 ? 0.5 : 1,
             }}
-          />
-          <TouchableOpacity
-            onPress={handleCheckout}
-            disabled={saving}
-            style={{ paddingHorizontal: 12, paddingVertical: 10 }}
           >
-            <Text style={{ color: "#2563EB", fontWeight: "600" }}>Check Out</Text>
+            <Text style={{ fontSize: 16, color: available <= 0 ? "grey" : "#000" }}>
+              {available <= 0 ? "None available" : "Select quantity"}
+            </Text>
+            <MaterialCommunityIcons name="chevron-down" size={18} color="#555" />
           </TouchableOpacity>
         </View>
 

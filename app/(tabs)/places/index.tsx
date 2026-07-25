@@ -71,6 +71,8 @@ export default function Index() {
         copy.sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime());
         break;
     }
+    // The primary home always leads the list, regardless of sort order.
+    copy.sort((a, b) => Number(b.is_primary) - Number(a.is_primary));
     return copy;
   }, [homes, sortOption]);
 
