@@ -75,7 +75,7 @@ export default function StarredScreen() {
 
   const handlePress = (item: PlaceRowItem) => {
     router.push({
-      pathname: "/(tabs)/places/node/[nodeType]/[nodeId]",
+      pathname: "/(tabs)/starred/node/[nodeType]/[nodeId]",
       params: { nodeType: item.type, nodeId: String(item.id), name: item.name },
     });
   };

@@ -55,7 +55,7 @@ export default function CheckedOutScreen() {
 
   const handlePress = (item: PlaceRowItem) => {
     router.push({
-      pathname: "/(tabs)/places/node/[nodeType]/[nodeId]",
+      pathname: "/(tabs)/checked-out/node/[nodeType]/[nodeId]",
       params: { nodeType: "item", nodeId: String(item.id), name: item.name },
     });
   };
