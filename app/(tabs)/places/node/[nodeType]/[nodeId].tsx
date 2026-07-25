@@ -45,6 +45,7 @@ type NodeDetails = {
   tags?: string[] | null;
   comment?: string | null;
   level?: number | null;
+  is_starred?: boolean;
 };
 
 type NodeResponse = {
@@ -287,12 +288,26 @@ export default function NodeScreen() {
 
   const handleDeleteChild = (child: PlaceRowItem) => confirmDelete(child, loadNode);
 
+  const handleStarToggle = async (type: string, id: number, isStarred: boolean) => {
+    try {
+      await api.post(`/app/place-node/${type}/${id}/${isStarred ? "unstar" : "star"}`, {}, authHeaders);
+      await loadNode();
+    } catch {
+      Alert.alert("Error", "Could not update star.");
+    }
+  };
+
   const selfAsPlaceRowItem: PlaceRowItem = { id: Number(nodeId), name: title, type: "item" };
   const handleDeleteSelf = () => confirmDelete(selfAsPlaceRowItem, () => router.back());
 
   const openChildActionSheet = (child: PlaceRowItem) => {
     setPendingActionCallback((action) => setPendingAction({ kind: "childAction", child, action }));
     const actions: SheetAction[] = [
+      {
+        key: child.is_starred ? "unstar" : "star",
+        label: child.is_starred ? "Unstar" : "Star",
+        icon: child.is_starred ? "star-off-outline" : "star-outline",
+      },
       { key: "rename", label: "Rename", icon: "pencil-outline" },
       { key: "delete", label: "Delete", icon: "delete-outline", destructive: true },
     ];
@@ -304,7 +319,15 @@ export default function NodeScreen() {
 
   const openSelfActionSheet = () => {
     setPendingActionCallback((action) => setPendingAction({ kind: "selfAction", action }));
-    const actions: SheetAction[] = [{ key: "delete", label: "Delete", icon: "delete-outline", destructive: true }];
+    const isStarred = data?.node_details?.is_starred ?? false;
+    const actions: SheetAction[] = [
+      {
+        key: isStarred ? "unstar" : "star",
+        label: isStarred ? "Unstar" : "Star",
+        icon: isStarred ? "star-off-outline" : "star-outline",
+      },
+      { key: "delete", label: "Delete", icon: "delete-outline", destructive: true },
+    ];
     pushModal({ pathname: "/(tabs)/places/action-sheet", params: { title, actions: JSON.stringify(actions) } });
   };
 
@@ -323,8 +346,14 @@ export default function NodeScreen() {
     } else if (action.kind === "childAction") {
       if (action.action === "rename") openRenameChild(action.child);
       else if (action.action === "delete") handleDeleteChild(action.child);
+      else if (action.action === "star" || action.action === "unstar") {
+        handleStarToggle(action.child.type, action.child.id, action.child.is_starred ?? false);
+      }
     } else if (action.kind === "selfAction") {
       if (action.action === "delete") handleDeleteSelf();
+      else if (action.action === "star" || action.action === "unstar") {
+        handleStarToggle(nodeType, Number(nodeId), data?.node_details?.is_starred ?? false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingAction]);

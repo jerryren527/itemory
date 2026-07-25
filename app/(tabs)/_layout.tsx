@@ -15,6 +15,7 @@ export default function TabsLayout() {
     <Tabs>
       <Tabs.Screen name="places" options={{ title: "Places", headerShown: false }} />
       <Tabs.Screen name="CheckedOutScreen" options={{ title: "Checked Out" }} />
+      <Tabs.Screen name="StarredScreen" options={{ title: "Starred" }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
       <Tabs.Screen
         name="SettingsScreen"

@@ -8,6 +8,8 @@ export type PlaceRowItem = {
   thumbnail?: string | null;
   quantity?: number | null;
   expiration_date?: string | null;
+  is_starred?: boolean;
+  updated_at?: string;
 };
 
 type PlaceRowProps = {
@@ -16,6 +18,7 @@ type PlaceRowProps = {
   subtitle?: string;
   onMenuPress?: (item: PlaceRowItem) => void;
   onReturnPress?: (item: PlaceRowItem) => void;
+  showDateModified?: boolean;
 };
 
 const ICON_BY_TYPE: Record<PlaceRowItem["type"], keyof typeof MaterialCommunityIcons.glyphMap> = {
@@ -24,7 +27,14 @@ const ICON_BY_TYPE: Record<PlaceRowItem["type"], keyof typeof MaterialCommunityI
   item: "cube-outline",
 };
 
-export default function PlaceRow({ item, onPress, subtitle, onMenuPress, onReturnPress }: PlaceRowProps) {
+export default function PlaceRow({
+  item,
+  onPress,
+  subtitle,
+  onMenuPress,
+  onReturnPress,
+  showDateModified,
+}: PlaceRowProps) {
   return (
     <View
       style={{
@@ -46,8 +56,15 @@ export default function PlaceRow({ item, onPress, subtitle, onMenuPress, onRetur
       >
         <MaterialCommunityIcons name={ICON_BY_TYPE[item.type]} size={28} color="#555" />
         <View style={{ marginLeft: 14, flex: 1 }}>
-          <Text style={{ fontSize: 16 }}>{item.name}</Text>
-          {subtitle && <Text style={{ fontSize: 13, color: "grey" }}>{subtitle}</Text>}
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Text style={{ fontSize: 16 }}>{item.name}</Text>
+            {item.is_starred && <MaterialCommunityIcons name="star" size={16} color="#F5A623" />}
+          </View>
+          {showDateModified && item.updated_at ? (
+            <Text style={{ fontSize: 13, color: "grey" }}>Modified: {new Date(item.updated_at).toLocaleString()}</Text>
+          ) : (
+            subtitle && <Text style={{ fontSize: 13, color: "grey" }}>{subtitle}</Text>
+          )}
           {item.type === "item" && item.quantity != null && (
             <Text style={{ fontSize: 13, color: "grey" }}>Qty: {item.quantity}</Text>
           )}

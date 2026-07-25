@@ -127,9 +127,27 @@ export default function SearchScreen() {
     ]);
   };
 
+  const handleStarToggle = async (item: SearchResult) => {
+    try {
+      await api.post(`/app/place-node/${item.type}/${item.id}/${item.is_starred ? "unstar" : "star"}`, {}, authHeaders);
+      setResults(
+        (prev) =>
+          prev?.map((r) => (r.id === item.id && r.type === item.type ? { ...r, is_starred: !r.is_starred } : r)) ??
+          null,
+      );
+    } catch {
+      Alert.alert("Error", "Could not update star.");
+    }
+  };
+
   const openActionSheet = (item: SearchResult) => {
     setPendingActionCallback((action) => setPendingAction({ item, action }));
     const actions: SheetAction[] = [
+      {
+        key: item.is_starred ? "unstar" : "star",
+        label: item.is_starred ? "Unstar" : "Star",
+        icon: item.is_starred ? "star-off-outline" : "star-outline",
+      },
       { key: "rename", label: "Rename", icon: "pencil-outline" },
       { key: "delete", label: "Delete", icon: "delete-outline", destructive: true },
     ];
@@ -149,6 +167,7 @@ export default function SearchScreen() {
 
     if (action === "rename") openRename(item);
     else if (action === "delete") handleDeleteResult(item);
+    else if (action === "star" || action === "unstar") handleStarToggle(item);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingAction]);
 
