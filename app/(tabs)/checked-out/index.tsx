@@ -2,6 +2,8 @@ import PlaceRow, { PlaceRowItem } from "@/components/places/PlaceRow";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
+import { pushModal } from "@/utils/modalNav";
+import { setPendingOptionCallback } from "@/utils/optionSelectionBridge";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { router, useFocusEffect } from "expo-router";
@@ -60,22 +62,43 @@ export default function CheckedOutScreen() {
     });
   };
 
-  const handleReturn = async (item: CheckedOutItem) => {
+  const handleReturn = (item: CheckedOutItem) => {
     if (returningIds.has(item.id)) return;
 
-    setReturningIds((prev) => new Set(prev).add(item.id));
-    try {
-      await api.post(`/app/item/${item.id}/return`, { quantity: item.quantity }, authHeaders);
-      setItems((prev) => prev?.filter((i) => i.id !== item.id) ?? null);
-    } catch (err) {
-      console.log("err", axios.isAxiosError(err) ? err.response?.data : err);
-    } finally {
-      setReturningIds((prev) => {
-        const next = new Set(prev);
-        next.delete(item.id);
-        return next;
-      });
-    }
+    const checkedOutQuantity = item.quantity ?? 0;
+
+    setPendingOptionCallback(async (value) => {
+      const quantity = Number(value);
+      setReturningIds((prev) => new Set(prev).add(item.id));
+      try {
+        await api.post(`/app/item/${item.id}/return`, { quantity }, authHeaders);
+        if (quantity >= checkedOutQuantity) {
+          setItems((prev) => prev?.filter((i) => i.id !== item.id) ?? null);
+        } else {
+          setItems((prev) => prev?.map((i) => (i.id === item.id ? { ...i, quantity: checkedOutQuantity - quantity } : i)) ?? null);
+        }
+      } catch (err) {
+        console.log("err", axios.isAxiosError(err) ? err.response?.data : err);
+      } finally {
+        setReturningIds((prev) => {
+          const next = new Set(prev);
+          next.delete(item.id);
+          return next;
+        });
+      }
+    });
+
+    pushModal({
+      pathname: "/(tabs)/checked-out/pick-option",
+      params: {
+        title: "Return Quantity",
+        value: String(checkedOutQuantity),
+        options: JSON.stringify(
+          Array.from({ length: checkedOutQuantity }, (_, i) => ({ label: String(i + 1), value: String(i + 1) })),
+        ),
+        layout: "centered",
+      },
+    });
   };
 
   return (
