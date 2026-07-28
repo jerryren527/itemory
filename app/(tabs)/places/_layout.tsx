@@ -20,6 +20,7 @@ export default function PlacesLayout() {
       <Stack.Screen name="edit-text" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="pick-option" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="action-sheet" options={MODAL_SCREEN_OPTIONS} />
+      <Stack.Screen name="photo" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="create-home" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="create-node" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="manage-access" options={MODAL_SCREEN_OPTIONS} />

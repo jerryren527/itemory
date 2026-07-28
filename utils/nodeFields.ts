@@ -8,7 +8,6 @@ export type NodeFormFields = {
   expiration_date: string;
   comment: string;
   tags: string;
-  picture: string;
 };
 
 export const CATEGORY_OPTIONS = [
@@ -28,5 +27,4 @@ export const EMPTY_NODE_FIELDS: NodeFormFields = {
   expiration_date: "",
   comment: "",
   tags: "",
-  picture: "",
 };

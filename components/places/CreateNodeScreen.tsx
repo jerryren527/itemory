@@ -1,17 +1,21 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
+import useItemPhotoUpload from "@/domain/photos/useItemPhotoUpload";
 import api from "@/interceptors/axios";
 import { setPendingDateCallback } from "@/utils/dateSelectionBridge";
 import { backModal, pushModal } from "@/utils/modalNav";
 import { CATEGORY_OPTIONS, CreateNodeKind, EMPTY_NODE_FIELDS, NodeFormFields } from "@/utils/nodeFields";
 import { setPendingOptionCallback } from "@/utils/optionSelectionBridge";
+import { setPendingPhotoCallback } from "@/utils/photoSelectionBridge";
 import { parseTags } from "@/utils/tags";
 import { setPendingTagsCallback } from "@/utils/tagsSelectionBridge";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
+import { Image } from "expo-image";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useContext, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const TITLES: Record<CreateNodeKind, string> = {
   room: "Add Room",
@@ -35,10 +39,17 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
   const [fields, setFields] = useState<NodeFormFields>(EMPTY_NODE_FIELDS);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [pendingPhotoUri, setPendingPhotoUri] = useState<string | null>(null);
+  const photoUpload = useItemPhotoUpload();
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
   const set = (key: keyof NodeFormFields) => (value: string) => setFields((prev) => ({ ...prev, [key]: value }));
+
+  const openPhotoViewer = () => {
+    setPendingPhotoCallback(setPendingPhotoUri);
+    pushModal({ pathname: `${basePath}/photo` as any, params: { pictureUrl: pendingPhotoUri ?? "" } });
+  };
 
   const handlePickCategory = () => {
     setPendingOptionCallback(set("category"));
@@ -86,7 +97,7 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
           authHeaders,
         );
       } else {
-        await api.post(
+        const res = await api.post(
           "/app/item",
           {
             ...parentField,
@@ -97,10 +108,19 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
             expiration_date: fields.expiration_date.trim() || null,
             comment: fields.comment.trim() || null,
             tags: parseTags(fields.tags),
-            picture: fields.picture.trim() || null,
           },
           authHeaders,
         );
+
+        const newItemId = res.data?.id;
+        if (pendingPhotoUri && newItemId) {
+          const photoUrl = await photoUpload.uploadToItem(newItemId, pendingPhotoUri);
+          if (!photoUrl) {
+            backModal();
+            Alert.alert("Item created", "Photo upload failed — you can add it later from the item's page.");
+            return;
+          }
+        }
       }
 
       backModal();
@@ -178,16 +198,31 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
               </Text>
             </TouchableOpacity>
 
-            <TextInput
-              value={fields.picture}
-              onChangeText={set("picture")}
-              placeholder="Picture URL (optional)"
-              placeholderTextColor="grey"
-              autoCapitalize="none"
-              keyboardType="url"
-              returnKeyType="done"
-              style={inputStyle}
-            />
+            <TouchableOpacity onPress={openPhotoViewer}>
+              {pendingPhotoUri ? (
+                <Image
+                  source={{ uri: pendingPhotoUri }}
+                  style={{ width: "100%", height: 200, borderRadius: 8, backgroundColor: "#eee" }}
+                  contentFit="cover"
+                />
+              ) : (
+                <View
+                  style={{
+                    height: 80,
+                    borderRadius: 8,
+                    backgroundColor: "#f5f5f5",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderWidth: 1,
+                    borderColor: "#ddd",
+                    borderStyle: "dashed",
+                  }}
+                >
+                  <MaterialCommunityIcons name="image-plus-outline" size={22} color="#999" />
+                  <Text style={{ color: "grey", fontSize: 13, marginTop: 4 }}>Add Photo (optional)</Text>
+                </View>
+              )}
+            </TouchableOpacity>
 
             <TextInput
               value={fields.comment}

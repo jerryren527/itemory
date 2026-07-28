@@ -52,7 +52,16 @@
         }
       ],
       "expo-secure-store",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Itemory needs access to your photos to attach a picture to an item.",
+          "cameraPermission": "Itemory needs access to your camera to take a picture of an item."
+        }
+      ],
+      "expo-build-properties",
+      "./plugins/withModularHeaders.js"
     ],
     "experiments": {
       "typedRoutes": true,

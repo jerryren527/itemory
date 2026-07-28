@@ -14,11 +14,12 @@ import { parseTags } from "@/utils/tags";
 import { setPendingTextCallback } from "@/utils/textSelectionBridge";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
+import { Image } from "expo-image";
 import { router, Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useContext, useState } from "react";
-import { ActivityIndicator, Alert, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-type ItemField = "name" | "description" | "comment" | "picture";
+type ItemField = "name" | "description" | "comment";
 
 const ITEM_FIELD_CONFIG: Record<
   ItemField,
@@ -27,7 +28,6 @@ const ITEM_FIELD_CONFIG: Record<
   name: { title: "Rename Item", placeholder: "Name" },
   description: { title: "Edit Description", placeholder: "Description", multiline: true },
   comment: { title: "Edit Comment", placeholder: "Comment", multiline: true },
-  picture: { title: "Edit Picture URL", placeholder: "https://..." },
 };
 
 type ItemCheckout = { user_id: number; username: string; quantity: number };
@@ -58,6 +58,12 @@ type PendingAction =
   | { kind: "childAction"; child: PlaceRowItem; action: string }
   | { kind: "selfAction"; action: string };
 
+const EMPTY_CHILDREN_MESSAGE: Record<string, string> = {
+  home: "This home is empty. Add a room to get started.",
+  room: "This room is empty. Add a container or item to get started.",
+  container: "This container is empty. Add an item to get started.",
+};
+
 function getItemFieldValue(item: NodeDetails, field: ItemField): string {
   switch (field) {
     case "name":
@@ -66,8 +72,6 @@ function getItemFieldValue(item: NodeDetails, field: ItemField): string {
       return item.description ?? "";
     case "comment":
       return item.comment ?? "";
-    case "picture":
-      return item.picture ?? "";
   }
 }
 
@@ -86,6 +90,11 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   const [data, setData] = useState<NodeResponse | null>(null);
   const [loadStatus, setLoadStatus] = useState<"loading" | "ready" | "error">("loading");
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [photoLoadError, setPhotoLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPhotoLoadError(null);
+  }, [data?.node_details?.picture]);
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -187,10 +196,14 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
         submitLabel: "Save",
         multiline: config.multiline ? "true" : "false",
         keyboardType: config.keyboardType,
-        autoCapitalize: field === "picture" ? "none" : "sentences",
+        autoCapitalize: "sentences",
         showClear: field === "comment" || field === "description" ? "true" : "false",
       },
     });
+  };
+
+  const openPhotoViewer = (item: NodeDetails) => {
+    pushModal({ pathname: `${basePath}/photo` as any, params: { itemId: String(nodeId), pictureUrl: item.picture ?? "" } });
   };
 
   const openQuantity = (item: NodeDetails) => {
@@ -417,12 +430,34 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             <MaterialCommunityIcons name="pencil-outline" size={18} color="#999" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => openItemField(item, "picture")}>
-            {item.picture ? (
+          <TouchableOpacity onPress={() => openPhotoViewer(item)}>
+            {item.picture && photoLoadError ? (
+              <View
+                style={{
+                  height: 120,
+                  borderRadius: 8,
+                  marginBottom: 16,
+                  backgroundColor: "#fdecea",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderWidth: 1,
+                  borderColor: "#f5c6cb",
+                }}
+              >
+                <MaterialCommunityIcons name="image-off-outline" size={22} color="#c0392b" />
+                <Text style={{ color: "#c0392b", fontSize: 13, marginTop: 4, textAlign: "center", paddingHorizontal: 12 }}>
+                  Photo failed to load ({photoLoadError})
+                </Text>
+              </View>
+            ) : item.picture ? (
               <Image
                 source={{ uri: item.picture }}
                 style={{ width: "100%", height: 200, borderRadius: 8, marginBottom: 16, backgroundColor: "#eee" }}
-                resizeMode="cover"
+                contentFit="cover"
+                onError={(e) => {
+                  console.log("Item photo failed to load:", item.picture, e.error);
+                  setPhotoLoadError(e.error || "unknown error");
+                }}
               />
             ) : (
               <View
@@ -439,7 +474,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
                 }}
               >
                 <MaterialCommunityIcons name="image-plus-outline" size={22} color="#999" />
-                <Text style={{ color: "grey", fontSize: 13, marginTop: 4 }}>Add Picture URL</Text>
+                <Text style={{ color: "grey", fontSize: 13, marginTop: 4 }}>Add Photo</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -491,19 +526,27 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
         }
       />
       <ScrollView>
-        {data.children.map((child) => (
-          <PlaceRow
-            key={`${child.type}-${child.id}`}
-            item={child}
-            onPress={(rowItem) =>
-              router.push({
-                pathname: `${basePath}/node/[nodeType]/[nodeId]` as any,
-                params: { nodeType: rowItem.type, nodeId: String(rowItem.id), name: rowItem.name },
-              })
-            }
-            onMenuPress={openChildActionSheet}
-          />
-        ))}
+        {data.children.length === 0 ? (
+          <View style={{ paddingVertical: 40, alignItems: "center" }}>
+            <Text style={{ color: "grey", textAlign: "center", paddingHorizontal: 24 }}>
+              {EMPTY_CHILDREN_MESSAGE[nodeType] ?? "This is empty."}
+            </Text>
+          </View>
+        ) : (
+          data.children.map((child) => (
+            <PlaceRow
+              key={`${child.type}-${child.id}`}
+              item={child}
+              onPress={(rowItem) =>
+                router.push({
+                  pathname: `${basePath}/node/[nodeType]/[nodeId]` as any,
+                  params: { nodeType: rowItem.type, nodeId: String(rowItem.id), name: rowItem.name },
+                })
+              }
+              onMenuPress={openChildActionSheet}
+            />
+          ))
+        )}
       </ScrollView>
     </>
   );
