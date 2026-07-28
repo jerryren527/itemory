@@ -12,6 +12,7 @@ import SplashScreen from "../SplashScreen";
 
 type SignUpFormType = {
   email: string;
+  username: string;
   password: string;
   confirmPassword: string;
 };
@@ -28,6 +29,7 @@ const SignUpPage = () => {
   } = useForm({
     defaultValues: {
       email: "",
+      username: "",
       password: "",
       confirmPassword: "",
     },
@@ -139,6 +141,36 @@ const SignUpPage = () => {
                     />
                   )}
                   name="email"
+                />
+              </View>
+
+              {/* Username */}
+              <View>
+                <Text>Username{errors.username?.message && <Text> ({errors.username.message})</Text>}</Text>
+                <Controller
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Username is required.",
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z0-9_]+$/,
+                      message: "Username can only contain letters, numbers, and underscores.",
+                    },
+                  }}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      placeholder="Username"
+                      placeholderTextColor="grey"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      style={AuthStyles.input}
+                      autoCapitalize="none"
+                    />
+                  )}
+                  name="username"
                 />
               </View>
 

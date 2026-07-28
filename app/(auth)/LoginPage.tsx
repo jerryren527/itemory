@@ -72,6 +72,7 @@ const LoginPage = () => {
       const refresh = res.data.tokens?.refresh;
 
       const email = res.data?.email;
+      const username = res.data?.username;
       const userId = res.data?.id;
       const hasPassword = res.data?.has_password;
       const emailVerified = res.data?.email_verified;
@@ -91,6 +92,7 @@ const LoginPage = () => {
         type: "LOGIN_SUCCEEDED",
         payload: {
           email: email,
+          username: username,
           userId: userId,
           hasPassword: hasPassword,
           emailVerified: emailVerified,

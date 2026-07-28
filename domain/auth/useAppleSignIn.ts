@@ -20,6 +20,7 @@ const useAppleSignIn = () => {
         accessToken: res.data.access_token,
         authProvider: "apple",
         email: res.data.email,
+        username: res.data.username,
         userId: res.data.id,
         hasApple: res.data.apple_account_linked,
       },

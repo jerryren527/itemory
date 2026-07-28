@@ -1,9 +1,9 @@
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
+import { Redirect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useContext, useEffect } from "react";
 import LandingPage from "./(auth)/LandingPage";
-import MainApp from "./MainApp";
 import SplashScreen from "./SplashScreen";
 
 // Landing Page
@@ -25,8 +25,7 @@ export default function Index() {
     case "initializing":
       return <SplashScreen />;
     case "authenticated":
-      // return <Redirect href="./(tabs)/places" />;
-      return <MainApp />;
+      return <Redirect href="/(tabs)/places" />;
   }
 
   return (
