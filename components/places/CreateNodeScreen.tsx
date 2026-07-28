@@ -10,12 +10,23 @@ import { setPendingOptionCallback } from "@/utils/optionSelectionBridge";
 import { setPendingPhotoCallback } from "@/utils/photoSelectionBridge";
 import { parseTags } from "@/utils/tags";
 import { setPendingTagsCallback } from "@/utils/tagsSelectionBridge";
+import { useHeaderHeight } from "@react-navigation/elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { Image } from "expo-image";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useContext, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const TITLES: Record<CreateNodeKind, string> = {
   room: "Add Room",
@@ -41,6 +52,7 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [pendingPhotoUri, setPendingPhotoUri] = useState<string | null>(null);
   const photoUpload = useItemPhotoUpload();
+  const headerHeight = useHeaderHeight();
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -146,97 +158,103 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
           headerRight: () => (loading ? undefined : <HeaderTextButton title="Add" bold onPress={handleSubmit} />),
         }}
       />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled">
-        {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={headerHeight + 50}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled">
+          {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
 
-        <TextInput
-          value={fields.name}
-          onChangeText={set("name")}
-          placeholder="Name"
-          placeholderTextColor="grey"
-          autoFocus
-          returnKeyType="done"
-          style={inputStyle}
-        />
+          <TextInput
+            value={fields.name}
+            onChangeText={set("name")}
+            placeholder="Name"
+            placeholderTextColor="grey"
+            autoFocus
+            returnKeyType="done"
+            style={inputStyle}
+          />
 
-        <TextInput
-          value={fields.description}
-          onChangeText={set("description")}
-          placeholder="Description (optional)"
-          placeholderTextColor="grey"
-          returnKeyType="done"
-          style={inputStyle}
-        />
+          <TextInput
+            value={fields.description}
+            onChangeText={set("description")}
+            placeholder="Description (optional)"
+            placeholderTextColor="grey"
+            returnKeyType="done"
+            style={inputStyle}
+          />
 
-        {kind === "item" && (
-          <>
-            <TextInput
-              value={fields.quantity}
-              onChangeText={set("quantity")}
-              placeholder="Quantity"
-              placeholderTextColor="grey"
-              keyboardType="number-pad"
-              returnKeyType="done"
-              style={inputStyle}
-            />
+          {kind === "item" && (
+            <>
+              <TextInput
+                value={fields.quantity}
+                onChangeText={set("quantity")}
+                placeholder="Quantity"
+                placeholderTextColor="grey"
+                keyboardType="number-pad"
+                returnKeyType="done"
+                style={inputStyle}
+              />
 
-            <TouchableOpacity onPress={handlePickCategory} style={inputStyle}>
-              <Text style={{ fontSize: 16, color: categoryLabel ? "black" : "grey" }}>
-                {categoryLabel || "Category (optional)"}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handlePickCategory} style={inputStyle}>
+                <Text style={{ fontSize: 16, color: categoryLabel ? "black" : "grey" }}>
+                  {categoryLabel || "Category (optional)"}
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={handlePickDate} style={inputStyle}>
-              <Text style={{ fontSize: 16, color: fields.expiration_date ? "black" : "grey" }}>
-                {fields.expiration_date || "Expiration date (optional)"}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handlePickDate} style={inputStyle}>
+                <Text style={{ fontSize: 16, color: fields.expiration_date ? "black" : "grey" }}>
+                  {fields.expiration_date || "Expiration date (optional)"}
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={handlePickTags} style={inputStyle}>
-              <Text style={{ fontSize: 16, color: fields.tags ? "black" : "grey" }}>
-                {fields.tags || "Tags (optional)"}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handlePickTags} style={inputStyle}>
+                <Text style={{ fontSize: 16, color: fields.tags ? "black" : "grey" }}>
+                  {fields.tags || "Tags (optional)"}
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={openPhotoViewer}>
-              {pendingPhotoUri ? (
-                <Image
-                  source={{ uri: pendingPhotoUri }}
-                  style={{ width: "100%", height: 200, borderRadius: 8, backgroundColor: "#eee" }}
-                  contentFit="cover"
-                />
-              ) : (
-                <View
-                  style={{
-                    height: 80,
-                    borderRadius: 8,
-                    backgroundColor: "#f5f5f5",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderWidth: 1,
-                    borderColor: "#ddd",
-                    borderStyle: "dashed",
-                  }}
-                >
-                  <MaterialCommunityIcons name="image-plus-outline" size={22} color="#999" />
-                  <Text style={{ color: "grey", fontSize: 13, marginTop: 4 }}>Add Photo (optional)</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+              <TouchableOpacity onPress={openPhotoViewer}>
+                {pendingPhotoUri ? (
+                  <Image
+                    source={{ uri: pendingPhotoUri }}
+                    style={{ width: "100%", height: 200, borderRadius: 8, backgroundColor: "#eee" }}
+                    contentFit="cover"
+                  />
+                ) : (
+                  <View
+                    style={{
+                      height: 80,
+                      borderRadius: 8,
+                      backgroundColor: "#f5f5f5",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderWidth: 1,
+                      borderColor: "#ddd",
+                      borderStyle: "dashed",
+                    }}
+                  >
+                    <MaterialCommunityIcons name="image-plus-outline" size={22} color="#999" />
+                    <Text style={{ color: "grey", fontSize: 13, marginTop: 4 }}>Add Photo (optional)</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
 
-            <TextInput
-              value={fields.comment}
-              onChangeText={set("comment")}
-              placeholder="Comment (optional)"
-              placeholderTextColor="grey"
-              returnKeyType="done"
-              style={inputStyle}
-            />
-          </>
-        )}
+              <TextInput
+                value={fields.comment}
+                onChangeText={set("comment")}
+                placeholder="Comment (optional)"
+                placeholderTextColor="grey"
+                returnKeyType="done"
+                style={inputStyle}
+              />
+            </>
+          )}
 
-        {loading && <ActivityIndicator />}
-      </ScrollView>
+          {loading && <ActivityIndicator />}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 }
