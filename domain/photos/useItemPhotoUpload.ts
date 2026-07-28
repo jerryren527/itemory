@@ -122,7 +122,7 @@ export default function useItemPhotoUpload() {
   const removePhoto = async (itemId: number | string): Promise<boolean> => {
     setError(null);
     try {
-      await api.post(`/app/item/${itemId}/update`, { picture: null }, authHeaders);
+      await api.post(`/app/item/${itemId}/photo/delete`, {}, authHeaders);
       return true;
     } catch (err) {
       const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Could not remove photo.") : "Could not remove photo.";
