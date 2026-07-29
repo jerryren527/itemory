@@ -238,21 +238,13 @@ export default function Index() {
         options={{ headerRight: () => <HeaderIconButton onPress={() => pushModal("/(tabs)/places/create-home")} /> }}
       />
 
+      <SearchBar mode="link" placeholder="Search" onPress={() => router.push("/(tabs)/places/search")} />
+
       {primaryHome === null && (
         <View style={{ padding: 16, alignItems: "center" }}>
-          <Text style={{ fontSize: 16, color: "grey", textAlign: "center", marginBottom: 8 }}>
-            You don&apos;t have a home yet.
-          </Text>
-          <TouchableOpacity
-            onPress={() => pushModal("/(tabs)/places/create-home")}
-            style={{ backgroundColor: "#2563EB", borderRadius: 8, paddingVertical: 10, paddingHorizontal: 20 }}
-          >
-            <Text style={{ color: "white", fontSize: 16 }}>Add a Place</Text>
-          </TouchableOpacity>
+          <Text style={{ fontSize: 16, color: "grey", textAlign: "center" }}>You don&apos;t have a home yet.</Text>
         </View>
       )}
-
-      <SearchBar mode="link" placeholder="Search" onPress={() => router.push("/(tabs)/places/search")} />
 
       {homes && homes.length > 0 && (
         <TouchableOpacity
