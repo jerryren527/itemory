@@ -2,7 +2,7 @@ appId: com.itemory
 ---
 # Run Setup Flow
 - runFlow: ../tests/setupEmulator.yaml
-# Invalid credentials -> "email or password is incorrect" error message
+# Invalid credentials -> "email/username or password is incorrect" error message
 - assertVisible: Log In
 - tapOn: Log In
 - assertVisible:
@@ -27,4 +27,4 @@ appId: com.itemory
 # - tapOn:
 #     text: "Never"
 #     optional: true
-- assertVisible: Email or password is incorrect.
+- assertVisible: Email/username or password is incorrect.

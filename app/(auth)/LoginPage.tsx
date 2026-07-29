@@ -15,7 +15,7 @@ import { useAuthFlowUI } from "../context/auth-flow-ui-context";
 import SplashScreen from "../SplashScreen";
 
 type LoginFormType = {
-  email: string;
+  identifier: string;
   password: string;
 };
 
@@ -28,7 +28,7 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
     },
   });
@@ -146,34 +146,30 @@ const LoginPage = () => {
             <Text style={AuthStyles.title}>Log In</Text>
             <View style={AuthStyles.content}>
               <Text>{errorMessage ? <Text style={{ color: "red" }}>{errorMessage}</Text> : null}</Text>
-              {/* Email */}
+              {/* Email or Username */}
               <View>
-                <Text>Email{errors.email && <Text> ({errors.email.message})</Text>}</Text>
+                <Text>Email or Username{errors.identifier && <Text> ({errors.identifier.message})</Text>}</Text>
                 <Controller
                   control={control}
                   rules={{
                     required: {
                       value: true,
-                      message: "Email is required.",
-                    },
-                    pattern: {
-                      value:
-                        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                      message: "Please enter a valid email",
+                      message: "Email or username is required.",
                     },
                   }}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-                      placeholder="Email"
+                      placeholder="Email or Username"
                       placeholderTextColor="grey"
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
                       style={AuthStyles.input}
-                      inputMode="email"
+                      autoCapitalize="none"
+                      autoCorrect={false}
                     />
                   )}
-                  name="email"
+                  name="identifier"
                 />
               </View>
 
