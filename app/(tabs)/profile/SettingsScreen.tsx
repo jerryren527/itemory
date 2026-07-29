@@ -1,25 +1,29 @@
-import TextPromptModal from "@/components/TextPromptModal";
+import ProfileHeaderCard from "@/components/profile/ProfileHeaderCard";
+import { SettingsRow, SettingsSection } from "@/components/profile/SettingsSection";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
+import { pushModal } from "@/utils/modalNav";
+import { setPendingTextCallback } from "@/utils/textSelectionBridge";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { GoogleSignin, isSuccessResponse } from "@react-native-google-signin/google-signin";
 import axios from "axios";
 import * as AppleAuthentication from "expo-apple-authentication";
-import { useRouter } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { Button, Platform, Text, View } from "react-native";
+import { Alert, Platform, ScrollView, Text, View } from "react-native";
 
 const SettingsScreen = () => {
-  const router = useRouter();
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [linking, setLinking] = useState<boolean>(false);
   const [unlinking, setUnlinking] = useState<boolean>(false);
   const [linkingApple, setLinkingApple] = useState<boolean>(false);
   const [unlinkingApple, setUnlinkingApple] = useState<boolean>(false);
-  const [editingUsername, setEditingUsername] = useState<boolean>(false);
-  const [savingUsername, setSavingUsername] = useState<boolean>(false);
-  const [usernameError, setUsernameError] = useState<string | null>(null);
+
+  const showError = (err: unknown, fallback: string) => {
+    const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? fallback) : fallback;
+    Alert.alert("Error", message);
+  };
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -113,30 +117,33 @@ const SettingsScreen = () => {
     }
   };
 
-  const handleSaveUsername = async (username: string) => {
-    if (savingUsername) return;
+  const openUsernameEditor = () => {
+    setPendingTextCallback(async (value) => {
+      const username = value.trim();
+      if (!username || username === state.username) return;
 
-    setSavingUsername(true);
-    setUsernameError(null);
-
-    try {
-      await api.post(
-        "/app/username",
-        { username: username.trim() },
-        { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } },
-      );
-
-      dispatch({ type: "USERNAME_SET", payload: { username: username.trim() } });
-      setEditingUsername(false);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setUsernameError(err.response?.data?.message ?? "Could not update username.");
-      } else {
-        setUsernameError("Something went wrong. Please try again.");
+      try {
+        await api.post(
+          "/app/username",
+          { username },
+          { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } },
+        );
+        dispatch({ type: "USERNAME_SET", payload: { username } });
+      } catch (err) {
+        showError(err, "Could not update username.");
       }
-    } finally {
-      setSavingUsername(false);
-    }
+    });
+
+    pushModal({
+      pathname: "/(tabs)/profile/edit-text",
+      params: {
+        title: "Change Username",
+        placeholder: "Username",
+        initialValue: state.username ?? "",
+        submitLabel: "Save",
+        autoCapitalize: "none",
+      },
+    });
   };
 
   const handleUnlinkApple = async () => {
@@ -161,55 +168,77 @@ const SettingsScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 12 }}>
-      <Text style={{ fontSize: 20, fontWeight: "600" }}>Settings</Text>
-
-      {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
-
-      <View style={{ alignItems: "center", gap: 4 }}>
-        <Text style={{ color: "grey" }}>@{state.username}</Text>
-        <Button title="Change Username" onPress={() => setEditingUsername(true)} />
-      </View>
-
-      <TextPromptModal
-        visible={editingUsername}
-        title="Change Username"
-        placeholder="Username"
-        initialValue={state.username ?? ""}
-        autoCapitalize="none"
-        loading={savingUsername}
-        errorMessage={usernameError}
-        onSubmit={handleSaveUsername}
-        onCancel={() => {
-          setEditingUsername(false);
-          setUsernameError(null);
-        }}
+    <ScrollView style={{ flex: 1, backgroundColor: "#F2F2F7" }} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ProfileHeaderCard
+        username={state.username}
+        email={state.email}
+        emailVerified={state.capabilities.emailVerified}
+        hasGoogle={state.capabilities.hasGoogle}
+        hasApple={state.capabilities.hasApple}
       />
 
-      <Button
-        title={state.capabilities.hasPassword ? "Change Password" : "Set Password"}
-        onPress={() => router.push("/ChangePasswordScreen")}
-      />
-
-      {state.capabilities.hasGoogle ? (
-        <View style={{ alignItems: "center", gap: 4 }}>
-          <Text style={{ color: "grey" }}>{state.googleEmail}</Text>
-          <Button title="Unlink Google" onPress={handleUnlinkGoogle} disabled={unlinking} />
+      {errorMessage && (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            backgroundColor: "#FDECEC",
+            borderRadius: 10,
+            marginTop: 16,
+            marginHorizontal: 16,
+            paddingVertical: 10,
+            paddingHorizontal: 14,
+          }}
+        >
+          <MaterialCommunityIcons name="alert-circle-outline" size={18} color="#D32F2F" />
+          <Text style={{ color: "#D32F2F", fontSize: 14, flex: 1 }}>{errorMessage}</Text>
         </View>
-      ) : (
-        <Button title="Link Google Account" onPress={handleLinkGoogle} disabled={linking} />
       )}
 
-      {Platform.OS === "ios" &&
-        (state.capabilities.hasApple ? (
-          <View style={{ alignItems: "center", gap: 4 }}>
-            <Text style={{ color: "grey" }}>Connected</Text>
-            <Button title="Unlink Apple" onPress={handleUnlinkApple} disabled={unlinkingApple} />
-          </View>
-        ) : (
-          <Button title="Link Apple Account" onPress={handleLinkApple} disabled={linkingApple} />
-        ))}
-    </View>
+      <SettingsSection title="Profile">
+        <SettingsRow
+          icon="account-outline"
+          label="Username"
+          subtitle={state.username ? `@${state.username}` : "Not set"}
+          onPress={openUsernameEditor}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="Security">
+        <SettingsRow
+          icon="lock-outline"
+          label={state.capabilities.hasPassword ? "Change Password" : "Set Password"}
+          onPress={() => pushModal("/(tabs)/profile/ChangePasswordScreen")}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="Linked Accounts">
+        <SettingsRow
+          icon="google"
+          label="Google"
+          subtitle={state.capabilities.hasGoogle ? (state.googleEmail ?? "Connected") : "Not connected"}
+          onPress={state.capabilities.hasGoogle ? handleUnlinkGoogle : handleLinkGoogle}
+          loading={state.capabilities.hasGoogle ? unlinking : linking}
+          showChevron={false}
+          trailingText={state.capabilities.hasGoogle ? "Unlink" : "Connect"}
+          trailingTextColor={state.capabilities.hasGoogle ? "#D32F2F" : "#2563EB"}
+        />
+
+        {Platform.OS === "ios" && (
+          <SettingsRow
+            icon="apple"
+            label="Apple"
+            subtitle={state.capabilities.hasApple ? "Connected" : "Not connected"}
+            onPress={state.capabilities.hasApple ? handleUnlinkApple : handleLinkApple}
+            loading={state.capabilities.hasApple ? unlinkingApple : linkingApple}
+            showChevron={false}
+            trailingText={state.capabilities.hasApple ? "Unlink" : "Connect"}
+            trailingTextColor={state.capabilities.hasApple ? "#D32F2F" : "#2563EB"}
+          />
+        )}
+      </SettingsSection>
+    </ScrollView>
   );
 };
 
