@@ -26,8 +26,8 @@ appId: com.itemory
     text: Confirm Password
     index: 1
 - inputText: Password123!!!
-- assertVisible: SUBMIT
-- tapOn: SUBMIT
+- assertVisible: Create Account
+- tapOn: Create Account
 # - tapOn:
 #     text: Not now
 #     optional: true

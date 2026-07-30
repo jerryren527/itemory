@@ -19,8 +19,12 @@ appId: com.itemory
     text: Password
     index: 1
 - inputText: Password123!!!
-- assertVisible: SUBMIT
-- tapOn: SUBMIT
+- assertVisible:
+    text: Log In
+    index: 1
+- tapOn:
+    text: Log In
+    index: 1
 # - tapOn:
 #     text: Not now
 #     optional: true
