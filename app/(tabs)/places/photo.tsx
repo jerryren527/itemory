@@ -8,7 +8,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 
 export default function PhotoScreen() {
-  const { itemId, pictureUrl } = useLocalSearchParams<{ itemId?: string; pictureUrl?: string }>();
+  const { itemId, pictureUrl, updatedAt } = useLocalSearchParams<{ itemId?: string; pictureUrl?: string; updatedAt?: string }>();
   const photoUpload = useItemPhotoUpload();
 
   // Only the "add photo to a not-yet-created item" flow (no itemId) needs to
@@ -38,9 +38,9 @@ export default function PhotoScreen() {
     const compressedUri = await photoUpload.compressImage(picked);
 
     if (itemId) {
-      const uploadedUrl = await photoUpload.uploadToItem(itemId, compressedUri);
+      const uploadedUrl = await photoUpload.uploadToItem(itemId, compressedUri, updatedAt);
       if (!uploadedUrl) {
-        Alert.alert("Error", photoUpload.error ?? "Could not upload photo.");
+        Alert.alert("Error", photoUpload.error ?? "Could not upload photo, please try again.");
         return;
       }
       reportAndClose(uploadedUrl);
@@ -78,14 +78,19 @@ export default function PhotoScreen() {
         {pictureUrl && (
           <Image source={{ uri: pictureUrl }} style={{ width: "100%", height: 320, backgroundColor: "#000" }} contentFit="contain" />
         )}
-        <View pointerEvents={photoUpload.uploading ? "none" : "auto"} style={{ opacity: photoUpload.uploading ? 0.5 : 1 }}>
+        <View
+          collapsable={false}
+          pointerEvents={photoUpload.uploading ? "none" : "auto"}
+          style={{ opacity: photoUpload.uploading ? 0.5 : 1 }}
+        >
           <ActionRows actions={actions} onSelect={select} />
         </View>
-        {photoUpload.uploading && (
-          <View style={{ paddingVertical: 16, alignItems: "center" }}>
-            <ActivityIndicator />
-          </View>
-        )}
+        <View
+          collapsable={false}
+          style={{ display: photoUpload.uploading ? "flex" : "none", paddingVertical: 16, alignItems: "center" }}
+        >
+          <ActivityIndicator />
+        </View>
       </ScrollView>
     </>
   );
