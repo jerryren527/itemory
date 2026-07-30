@@ -8,7 +8,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useContext, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 
 type SortOption = "name_asc" | "name_desc";
 
@@ -25,6 +25,7 @@ export default function CheckedOutScreen() {
   const [items, setItems] = useState<CheckedOutItem[] | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("name_asc");
   const [returningIds, setReturningIds] = useState<Set<number>>(new Set());
+  const [refreshing, setRefreshing] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -35,6 +36,12 @@ export default function CheckedOutScreen() {
     } catch (err) {
       console.log("err", err);
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadCheckedOut();
+    setRefreshing(false);
   };
 
   useFocusEffect(
@@ -138,6 +145,7 @@ export default function CheckedOutScreen() {
       <FlatList
         data={sortedItems}
         keyExtractor={(item) => String(item.id)}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         renderItem={({ item }) => (
           <PlaceRow
             item={item}

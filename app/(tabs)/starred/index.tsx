@@ -5,7 +5,7 @@ import api from "@/interceptors/axios";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useContext, useMemo, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 
 type SortOption = "name_asc" | "name_desc" | "date_new" | "date_old";
 
@@ -26,6 +26,7 @@ export default function StarredScreen() {
   const [items, setItems] = useState<StarredItem[] | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("name_asc");
   const [sortExpanded, setSortExpanded] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -36,6 +37,12 @@ export default function StarredScreen() {
     } catch (err) {
       console.log("err", err);
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadStarred();
+    setRefreshing(false);
   };
 
   useFocusEffect(
@@ -161,6 +168,7 @@ export default function StarredScreen() {
       <FlatList
         data={sortedItems}
         keyExtractor={(item) => `${item.type}-${item.id}`}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         renderItem={({ item }) => (
           <PlaceRow
             item={item}

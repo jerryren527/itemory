@@ -11,7 +11,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { router, Stack, useFocusEffect } from "expo-router";
 import { useCallback, useContext, useMemo, useState } from "react";
-import { Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 import SearchBar from "@/components/places/SearchBar";
 
 type SortOption = "name_asc" | "name_desc" | "date_new" | "date_old";
@@ -35,6 +35,7 @@ export default function Index() {
   const [homes, setHomes] = useState<HomeRowItem[] | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("name_asc");
   const [pendingHomeAction, setPendingHomeAction] = useState<PendingHomeAction | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -45,6 +46,12 @@ export default function Index() {
     } catch (err) {
       console.log("err", err);
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadHomes();
+    setRefreshing(false);
   };
 
   useFocusEffect(
@@ -270,6 +277,7 @@ export default function Index() {
       <FlatList
         data={sortedHomes}
         keyExtractor={(item) => String(item.id)}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         renderItem={({ item }) => (
           <HomeRow
             item={item}

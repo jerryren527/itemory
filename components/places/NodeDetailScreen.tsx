@@ -17,7 +17,7 @@ import axios from "axios";
 import { Image } from "expo-image";
 import { router, Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 type ItemField = "name" | "description" | "comment";
 
@@ -92,6 +92,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   const [loadStatus, setLoadStatus] = useState<"loading" | "ready" | "error">("loading");
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [photoLoadError, setPhotoLoadError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     setPhotoLoadError(null);
@@ -123,6 +124,12 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nodeType, nodeId]),
   );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadNode();
+    setRefreshing(false);
+  };
 
   const title = data?.node_details?.name ?? name ?? "";
 
@@ -448,7 +455,10 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             headerRight: () => <HeaderIconButton icon="dots-vertical" color="#555" onPress={openSelfActionSheet} />,
           }}
         />
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <ScrollView
+          contentContainerStyle={{ padding: 16 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        >
           <TouchableOpacity
             onPress={() => openItemField(item, "name")}
             style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 }}
@@ -553,7 +563,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
           })
         }
       />
-      <ScrollView>
+      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
         {data.children.length === 0 ? (
           <View style={{ paddingVertical: 40, alignItems: "center" }}>
             <Text style={{ color: "grey", textAlign: "center", paddingHorizontal: 24 }}>
