@@ -111,7 +111,7 @@ export default function Index() {
   const openRename = (home: HomeRowItem) => {
     setPendingTextCallback(async (value) => {
       try {
-        await api.post(`/app/home/${home.id}/rename`, { name: value }, authHeaders);
+        await api.post(`/app/home/${home.id}/rename`, { name: value, expected_updated_at: home.updated_at }, authHeaders);
         await loadHomes();
       } catch (err) {
         showError(err, "Could not rename this home.");
@@ -126,7 +126,7 @@ export default function Index() {
   const openEditAddress = (home: HomeRowItem) => {
     setPendingTextCallback(async (value) => {
       try {
-        await api.post(`/app/home/${home.id}/address`, { address: value }, authHeaders);
+        await api.post(`/app/home/${home.id}/address`, { address: value, expected_updated_at: home.updated_at }, authHeaders);
         await loadHomes();
       } catch (err) {
         showError(err, "Could not update the address.");

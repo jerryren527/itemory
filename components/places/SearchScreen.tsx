@@ -102,8 +102,17 @@ export default function SearchScreen({ basePath }: SearchScreenProps) {
         return;
       }
       try {
-        await api.post(`/app/place-node/${item.type}/${item.id}/rename`, { name: value.trim() }, authHeaders);
-        setResults((prev) => prev?.map((r) => (r.id === item.id && r.type === item.type ? { ...r, name: value.trim() } : r)) ?? null);
+        const res = await api.post(
+          `/app/place-node/${item.type}/${item.id}/rename`,
+          { name: value.trim(), expected_updated_at: item.updated_at },
+          authHeaders,
+        );
+        setResults(
+          (prev) =>
+            prev?.map((r) =>
+              r.id === item.id && r.type === item.type ? { ...r, name: value.trim(), updated_at: res.data.updated_at } : r,
+            ) ?? null,
+        );
       } catch (err) {
         const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Something went wrong.") : "Something went wrong.";
         Alert.alert("Error", message);

@@ -46,6 +46,7 @@ type NodeDetails = {
   comment?: string | null;
   level?: number | null;
   is_starred?: boolean;
+  updated_at?: string;
 };
 
 type NodeResponse = {
@@ -170,11 +171,13 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
       return;
     }
 
+    const expected_updated_at = data?.node_details?.updated_at;
+
     try {
       if (field === "name") {
-        await api.post(`/app/place-node/item/${nodeId}/rename`, { name: rawValue.trim() }, authHeaders);
+        await api.post(`/app/place-node/item/${nodeId}/rename`, { name: rawValue.trim(), expected_updated_at }, authHeaders);
       } else {
-        await api.post(`/app/item/${nodeId}/update`, { [field]: rawValue.trim() || null }, authHeaders);
+        await api.post(`/app/item/${nodeId}/update`, { [field]: rawValue.trim() || null, expected_updated_at }, authHeaders);
       }
 
       await loadNode();
@@ -203,7 +206,10 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   };
 
   const openPhotoViewer = (item: NodeDetails) => {
-    pushModal({ pathname: `${basePath}/photo` as any, params: { itemId: String(nodeId), pictureUrl: item.picture ?? "" } });
+    pushModal({
+      pathname: `${basePath}/photo` as any,
+      params: { itemId: String(nodeId), pictureUrl: item.picture ?? "", updatedAt: item.updated_at ?? "" },
+    });
   };
 
   const openQuantity = (item: NodeDetails) => {
@@ -215,16 +221,22 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
         availableQuantity: String(item.available_quantity ?? item.quantity ?? 1),
         checkouts: JSON.stringify(item.checkouts ?? []),
         canManageCheckouts: item.can_manage_checkouts ? "true" : "false",
+        updatedAt: item.updated_at ?? "",
       },
     });
   };
 
   const handleCategorySelect = async (value: string) => {
     try {
-      await api.post(`/app/item/${nodeId}/update`, { category: value || null }, authHeaders);
+      await api.post(
+        `/app/item/${nodeId}/update`,
+        { category: value || null, expected_updated_at: data?.node_details?.updated_at },
+        authHeaders,
+      );
       await loadNode();
-    } catch {
-      Alert.alert("Error", "Could not update category.");
+    } catch (err) {
+      const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Could not update category.") : "Could not update category.";
+      Alert.alert("Error", message);
     }
   };
 
@@ -238,10 +250,17 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
 
   const handleDateSelect = async (value: string) => {
     try {
-      await api.post(`/app/item/${nodeId}/update`, { expiration_date: value || null }, authHeaders);
+      await api.post(
+        `/app/item/${nodeId}/update`,
+        { expiration_date: value || null, expected_updated_at: data?.node_details?.updated_at },
+        authHeaders,
+      );
       await loadNode();
-    } catch {
-      Alert.alert("Error", "Could not update expiration date.");
+    } catch (err) {
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? "Could not update expiration date.")
+        : "Could not update expiration date.";
+      Alert.alert("Error", message);
     }
   };
 
@@ -255,10 +274,15 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
 
   const handleTagsSelect = async (value: string) => {
     try {
-      await api.post(`/app/item/${nodeId}/update`, { tags: parseTags(value) }, authHeaders);
+      await api.post(
+        `/app/item/${nodeId}/update`,
+        { tags: parseTags(value), expected_updated_at: data?.node_details?.updated_at },
+        authHeaders,
+      );
       await loadNode();
-    } catch {
-      Alert.alert("Error", "Could not update tags.");
+    } catch (err) {
+      const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Could not update tags.") : "Could not update tags.";
+      Alert.alert("Error", message);
     }
   };
 
@@ -277,7 +301,11 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
         return;
       }
       try {
-        await api.post(`/app/place-node/${child.type}/${child.id}/rename`, { name: value.trim() }, authHeaders);
+        await api.post(
+          `/app/place-node/${child.type}/${child.id}/rename`,
+          { name: value.trim(), expected_updated_at: child.updated_at },
+          authHeaders,
+        );
         await loadNode();
       } catch (err) {
         const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Something went wrong.") : "Something went wrong.";

@@ -14,7 +14,7 @@ const QUANTITY_OPTIONS = Array.from({ length: 100 }, (_, n) => ({ label: String(
 
 type Checkout = { user_id: number; username: string; quantity: number };
 
-type ServerItemState = { quantity: number; available_quantity: number; checkouts: Checkout[] };
+type ServerItemState = { quantity: number; available_quantity: number; checkouts: Checkout[]; updated_at: string };
 
 function parseCheckouts(raw?: string): Checkout[] {
   if (!raw) return [];
@@ -32,18 +32,20 @@ type EditQuantityScreenProps = {
 };
 
 export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps) {
-  const { itemId, quantity, availableQuantity, checkouts, canManageCheckouts } = useLocalSearchParams<{
+  const { itemId, quantity, availableQuantity, checkouts, canManageCheckouts, updatedAt } = useLocalSearchParams<{
     itemId: string;
     quantity: string;
     availableQuantity: string;
     checkouts: string;
     canManageCheckouts: string;
+    updatedAt?: string;
   }>();
   const { state } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
 
   const [total, setTotal] = useState(quantity ?? "1");
   const [available, setAvailable] = useState(Number(availableQuantity ?? quantity ?? 0));
   const [checkoutList, setCheckoutList] = useState<Checkout[]>(() => parseCheckouts(checkouts));
+  const [expectedUpdatedAt, setExpectedUpdatedAt] = useState(updatedAt);
   const [saving, setSaving] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
@@ -53,6 +55,7 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
     setTotal(String(data.quantity));
     setAvailable(data.available_quantity);
     setCheckoutList(data.checkouts);
+    setExpectedUpdatedAt(data.updated_at);
   };
 
   const errorMessageFrom = (err: unknown) =>
@@ -63,7 +66,11 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
       const newTotal = Number(value);
       setSaving(true);
       try {
-        const res = await api.post(`/app/item/${itemId}/update`, { quantity: newTotal }, authHeaders);
+        const res = await api.post(
+          `/app/item/${itemId}/update`,
+          { quantity: newTotal, expected_updated_at: expectedUpdatedAt },
+          authHeaders,
+        );
         applyServerState(res.data);
       } catch (err) {
         Alert.alert("Error", errorMessageFrom(err));

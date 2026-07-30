@@ -75,7 +75,7 @@ export default function useItemPhotoUpload() {
   // directly to S3, then persists the resulting URL on the item via the
   // existing generic field-update endpoint. Returns the final photo URL on
   // success, or null on failure (with a message set on `error`).
-  const uploadToItem = async (itemId: number | string, localUri: string): Promise<string | null> => {
+  const uploadToItem = async (itemId: number | string, localUri: string, expectedUpdatedAt?: string): Promise<string | null> => {
     setUploading(true);
     setError(null);
 
@@ -97,11 +97,13 @@ export default function useItemPhotoUpload() {
       });
       if (!putRes.ok) throw new Error(`Upload to storage failed (${putRes.status}).`);
 
-      await api.post(`/app/item/${itemId}/update`, { picture: photo_url }, authHeaders);
+      await api.post(`/app/item/${itemId}/update`, { picture: photo_url, expected_updated_at: expectedUpdatedAt }, authHeaders);
 
       return photo_url;
     } catch (err) {
-      const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Could not upload photo.") : "Could not upload photo.";
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? "Could not upload photo, please try again.")
+        : "Could not upload photo, please try again.";
       setError(message);
       return null;
     } finally {
