@@ -1,4 +1,5 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
@@ -14,6 +15,7 @@ export default function CreateHomeScreen() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const colors = useThemeColors();
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -49,35 +51,35 @@ export default function CreateHomeScreen() {
       <Stack.Screen
         options={{
           title: "Add a Home",
-          headerLeft: () => <HeaderTextButton title="Cancel" color="#808080" onPress={backModal} />,
+          headerLeft: () => <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />,
           headerRight: () => (loading ? undefined : <HeaderTextButton title="Create" bold onPress={handleCreate} />),
         }}
       />
       <View style={{ flex: 1, padding: 16, gap: 12 }}>
-        {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
+        {errorMessage && <Text style={{ color: colors.destructive }}>{errorMessage}</Text>}
 
         <View>
-          <Text style={{ marginBottom: 6, color: "grey" }}>Home name</Text>
+          <Text style={{ marginBottom: 6, color: colors.textSecondary }}>Home name</Text>
           <TextInput
             value={name}
             onChangeText={setName}
             placeholder="Home name"
-            placeholderTextColor="grey"
+            placeholderTextColor={colors.textSecondary}
             autoFocus
             returnKeyType="next"
-            style={inputStyle}
+            style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
           />
         </View>
 
         <View>
-          <Text style={{ marginBottom: 6, color: "grey" }}>Address (optional)</Text>
+          <Text style={{ marginBottom: 6, color: colors.textSecondary }}>Address (optional)</Text>
           <TextInput
             value={address}
             onChangeText={setAddress}
             placeholder="Address"
-            placeholderTextColor="grey"
+            placeholderTextColor={colors.textSecondary}
             returnKeyType="done"
-            style={inputStyle}
+            style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
           />
         </View>
 
@@ -88,7 +90,6 @@ export default function CreateHomeScreen() {
 }
 
 const inputStyle = {
-  borderColor: "#ccc",
   borderWidth: 1,
   borderRadius: 8,
   paddingHorizontal: 12,

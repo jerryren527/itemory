@@ -1,4 +1,5 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import useItemPhotoUpload from "@/domain/photos/useItemPhotoUpload";
@@ -53,6 +54,7 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
   const [pendingPhotoUri, setPendingPhotoUri] = useState<string | null>(null);
   const photoUpload = useItemPhotoUpload();
   const headerHeight = useHeaderHeight();
+  const colors = useThemeColors();
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -154,7 +156,7 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
       <Stack.Screen
         options={{
           title: TITLES[kind],
-          headerLeft: () => <HeaderTextButton title="Cancel" color="#808080" onPress={backModal} />,
+          headerLeft: () => <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />,
           headerRight: () => (loading ? undefined : <HeaderTextButton title="Add" bold onPress={handleSubmit} />),
         }}
       />
@@ -164,25 +166,25 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled">
-          {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
+          {errorMessage && <Text style={{ color: colors.destructive }}>{errorMessage}</Text>}
 
           <TextInput
             value={fields.name}
             onChangeText={set("name")}
             placeholder="Name"
-            placeholderTextColor="grey"
+            placeholderTextColor={colors.textSecondary}
             autoFocus
             returnKeyType="done"
-            style={inputStyle}
+            style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
           />
 
           <TextInput
             value={fields.description}
             onChangeText={set("description")}
             placeholder="Description (optional)"
-            placeholderTextColor="grey"
+            placeholderTextColor={colors.textSecondary}
             returnKeyType="done"
-            style={inputStyle}
+            style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
           />
 
           {kind === "item" && (
@@ -191,26 +193,26 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
                 value={fields.quantity}
                 onChangeText={set("quantity")}
                 placeholder="Quantity"
-                placeholderTextColor="grey"
+                placeholderTextColor={colors.textSecondary}
                 keyboardType="number-pad"
                 returnKeyType="done"
-                style={inputStyle}
+                style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
               />
 
-              <TouchableOpacity onPress={handlePickCategory} style={inputStyle}>
-                <Text style={{ fontSize: 16, color: categoryLabel ? "black" : "grey" }}>
+              <TouchableOpacity onPress={handlePickCategory} style={[inputStyle, { borderColor: colors.border }]}>
+                <Text style={{ fontSize: 16, color: categoryLabel ? colors.text : colors.textSecondary }}>
                   {categoryLabel || "Category (optional)"}
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={handlePickDate} style={inputStyle}>
-                <Text style={{ fontSize: 16, color: fields.expiration_date ? "black" : "grey" }}>
+              <TouchableOpacity onPress={handlePickDate} style={[inputStyle, { borderColor: colors.border }]}>
+                <Text style={{ fontSize: 16, color: fields.expiration_date ? colors.text : colors.textSecondary }}>
                   {fields.expiration_date || "Expiration date (optional)"}
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={handlePickTags} style={inputStyle}>
-                <Text style={{ fontSize: 16, color: fields.tags ? "black" : "grey" }}>
+              <TouchableOpacity onPress={handlePickTags} style={[inputStyle, { borderColor: colors.border }]}>
+                <Text style={{ fontSize: 16, color: fields.tags ? colors.text : colors.textSecondary }}>
                   {fields.tags || "Tags (optional)"}
                 </Text>
               </TouchableOpacity>
@@ -219,7 +221,7 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
                 {pendingPhotoUri ? (
                   <Image
                     source={{ uri: pendingPhotoUri }}
-                    style={{ width: "100%", height: 200, borderRadius: 8, backgroundColor: "#eee" }}
+                    style={{ width: "100%", height: 200, borderRadius: 8, backgroundColor: colors.surfaceAlt }}
                     contentFit="cover"
                   />
                 ) : (
@@ -227,16 +229,16 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
                     style={{
                       height: 80,
                       borderRadius: 8,
-                      backgroundColor: "#f5f5f5",
+                      backgroundColor: colors.surfaceAlt,
                       justifyContent: "center",
                       alignItems: "center",
                       borderWidth: 1,
-                      borderColor: "#ddd",
+                      borderColor: colors.border,
                       borderStyle: "dashed",
                     }}
                   >
-                    <MaterialCommunityIcons name="image-plus-outline" size={22} color="#999" />
-                    <Text style={{ color: "grey", fontSize: 13, marginTop: 4 }}>Add Photo (optional)</Text>
+                    <MaterialCommunityIcons name="image-plus-outline" size={22} color={colors.textMuted} />
+                    <Text style={{ color: colors.textSecondary, fontSize: 13, marginTop: 4 }}>Add Photo (optional)</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -245,9 +247,9 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
                 value={fields.comment}
                 onChangeText={set("comment")}
                 placeholder="Comment (optional)"
-                placeholderTextColor="grey"
+                placeholderTextColor={colors.textSecondary}
                 returnKeyType="done"
-                style={inputStyle}
+                style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
               />
             </>
           )}
@@ -260,7 +262,6 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
 }
 
 const inputStyle = {
-  borderColor: "#ccc",
   borderWidth: 1,
   borderRadius: 8,
   paddingHorizontal: 12,

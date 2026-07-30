@@ -1,6 +1,7 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import api from "@/interceptors/axios";
 import { backModal } from "@/utils/modalNav";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -21,6 +22,7 @@ import {
 
 const ChangePasswordScreen = () => {
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
+  const colors = useThemeColors();
   const headerHeight = useHeaderHeight();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -98,7 +100,7 @@ const ChangePasswordScreen = () => {
       <Stack.Screen
         options={{
           title: hasPassword ? "Change Password" : "Set Password",
-          headerLeft: () => <HeaderTextButton title="Cancel" color="#808080" onPress={backModal} />,
+          headerLeft: () => <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />,
           headerRight: () =>
             settingPassword ? undefined : (
               <HeaderTextButton title="Save" bold onPress={handleSetPassword} />
@@ -108,37 +110,37 @@ const ChangePasswordScreen = () => {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={headerHeight}
-        style={{ flex: 1, backgroundColor: "white" }}
+        style={{ flex: 1, backgroundColor: colors.background }}
       >
         <ScrollView contentContainerStyle={{ padding: 20, gap: 16 }} keyboardShouldPersistTaps="handled">
           {errorMessage && (
-            <View style={bannerStyle("#FDECEC")}>
-              <MaterialCommunityIcons name="alert-circle-outline" size={18} color="#D32F2F" />
-              <Text style={{ color: "#D32F2F", fontSize: 14, flex: 1 }}>{errorMessage}</Text>
+            <View style={bannerStyle(colors.destructiveBackground)}>
+              <MaterialCommunityIcons name="alert-circle-outline" size={18} color={colors.destructive} />
+              <Text style={{ color: colors.destructive, fontSize: 14, flex: 1 }}>{errorMessage}</Text>
             </View>
           )}
 
           {successMessage && (
-            <View style={bannerStyle("#E7F5EC")}>
-              <MaterialCommunityIcons name="check-circle-outline" size={18} color="#059669" />
-              <Text style={{ color: "#059669", fontSize: 14, flex: 1 }}>{successMessage}</Text>
+            <View style={bannerStyle(colors.successBackground)}>
+              <MaterialCommunityIcons name="check-circle-outline" size={18} color={colors.success} />
+              <Text style={{ color: colors.success, fontSize: 14, flex: 1 }}>{successMessage}</Text>
             </View>
           )}
 
           {requiresEmail && (
             <View>
-              <Text style={labelStyle}>Email</Text>
-              <View style={fieldStyle}>
+              <Text style={[labelStyle, { color: colors.textSecondary }]}>Email</Text>
+              <View style={[fieldStyle, { borderColor: colors.border, backgroundColor: colors.surfaceAlt }]}>
                 <TextInput
                   value={email}
                   onChangeText={setEmail}
                   placeholder="Email"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={colors.textMuted}
                   autoCapitalize="none"
                   inputMode="email"
                   autoFocus
                   returnKeyType="next"
-                  style={{ flex: 1, fontSize: 16, color: "black" }}
+                  style={{ flex: 1, fontSize: 16, color: colors.text }}
                 />
               </View>
             </View>
@@ -172,7 +174,7 @@ const ChangePasswordScreen = () => {
             onToggleHidden={() => setHideConfirmPassword(!hideConfirmPassword)}
           />
 
-          {settingPassword && <ActivityIndicator color="#2563EB" />}
+          {settingPassword && <ActivityIndicator color={colors.tint} />}
         </ScrollView>
       </KeyboardAvoidingView>
     </>
@@ -189,23 +191,25 @@ type PasswordFieldProps = {
 };
 
 function PasswordField({ label, value, onChangeText, hidden, onToggleHidden, autoFocus }: PasswordFieldProps) {
+  const colors = useThemeColors();
+
   return (
     <View>
-      <Text style={labelStyle}>{label}</Text>
-      <View style={fieldStyle}>
+      <Text style={[labelStyle, { color: colors.textSecondary }]}>{label}</Text>
+      <View style={[fieldStyle, { borderColor: colors.border, backgroundColor: colors.surfaceAlt }]}>
         <TextInput
           value={value}
           onChangeText={onChangeText}
           placeholder={label}
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textMuted}
           autoCapitalize="none"
           secureTextEntry={hidden}
           autoFocus={autoFocus}
           returnKeyType="done"
-          style={{ flex: 1, fontSize: 16, color: "black" }}
+          style={{ flex: 1, fontSize: 16, color: colors.text }}
         />
         <TouchableOpacity onPress={onToggleHidden} hitSlop={10}>
-          <MaterialCommunityIcons name={hidden ? "eye-off-outline" : "eye-outline"} size={20} color="#888" />
+          <MaterialCommunityIcons name={hidden ? "eye-off-outline" : "eye-outline"} size={20} color={colors.icon} />
         </TouchableOpacity>
       </View>
     </View>
@@ -215,7 +219,6 @@ function PasswordField({ label, value, onChangeText, hidden, onToggleHidden, aut
 const labelStyle = {
   fontSize: 13,
   fontWeight: "600" as const,
-  color: "grey",
   marginBottom: 6,
   marginLeft: 2,
 };
@@ -225,8 +228,6 @@ const fieldStyle = {
   alignItems: "center" as const,
   gap: 8,
   borderWidth: 1,
-  borderColor: "#E0E0E0",
-  backgroundColor: "#F9FAFB",
   borderRadius: 12,
   paddingHorizontal: 14,
   height: 50,

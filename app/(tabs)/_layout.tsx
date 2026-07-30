@@ -1,18 +1,20 @@
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 import { useContext } from "react";
 
 export default function TabsLayout() {
   const { state } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
+  const colors = useThemeColors();
 
   if (state.userState !== "authenticated") {
     return <Redirect href="/" />;
   }
 
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: "#2563EB", tabBarInactiveTintColor: "#888" }}>
+    <Tabs screenOptions={{ tabBarActiveTintColor: colors.tint, tabBarInactiveTintColor: colors.textMuted }}>
       <Tabs.Screen
         name="places"
         options={{

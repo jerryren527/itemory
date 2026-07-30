@@ -1,4 +1,5 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { backModal } from "@/utils/modalNav";
 import { consumePendingTextCallback } from "@/utils/textSelectionBridge";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -17,6 +18,7 @@ export default function EditTextScreen() {
     showClear?: string;
   }>();
   const [value, setValue] = useState(params.initialValue ?? "");
+  const colors = useThemeColors();
 
   const multiline = params.multiline === "true";
   const showClear = params.showClear === "true";
@@ -35,9 +37,9 @@ export default function EditTextScreen() {
           title: params.title || "Edit",
           headerLeft: () =>
             showClear ? (
-              <HeaderTextButton title="Clear" color="#808080" onPress={() => finish("")} />
+              <HeaderTextButton title="Clear" color={colors.textSecondary} onPress={() => finish("")} />
             ) : (
-              <HeaderTextButton title="Cancel" color="#808080" onPress={backModal} />
+              <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />
             ),
           headerRight: () => (
             <HeaderTextButton title={params.submitLabel || "Save"} bold onPress={() => finish(value)} />
@@ -49,14 +51,14 @@ export default function EditTextScreen() {
           value={value}
           onChangeText={setValue}
           placeholder={params.placeholder}
-          placeholderTextColor="grey"
+          placeholderTextColor={colors.textSecondary}
           autoCapitalize={autoCapitalize}
           keyboardType={params.keyboardType as KeyboardTypeOptions | undefined}
           multiline={multiline}
           autoFocus
           returnKeyType={multiline ? "default" : "done"}
           style={{
-            borderColor: "#ccc",
+            borderColor: colors.border,
             borderWidth: 1,
             borderRadius: 8,
             paddingHorizontal: 12,
@@ -64,6 +66,7 @@ export default function EditTextScreen() {
             fontSize: 16,
             minHeight: multiline ? 120 : undefined,
             textAlignVertical: multiline ? "top" : "center",
+            color: colors.text,
           }}
         />
       </View>

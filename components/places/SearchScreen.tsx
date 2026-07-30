@@ -7,6 +7,7 @@ import api from "@/interceptors/axios";
 import { setPendingActionCallback, SheetAction } from "@/utils/actionSelectionBridge";
 import { pushModal } from "@/utils/modalNav";
 import { setPendingTextCallback } from "@/utils/textSelectionBridge";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import axios from "axios";
 import { router, Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -31,6 +32,7 @@ export default function SearchScreen({ basePath }: SearchScreenProps) {
     originName?: string;
   }>();
   const { state } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
+  const colors = useThemeColors();
 
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<SearchScope>(originType ? "folder" : "everywhere");
@@ -213,7 +215,7 @@ export default function SearchScreen({ basePath }: SearchScreenProps) {
 
       {!loading && results && results.length === 0 && (
         <View style={{ paddingVertical: 12, alignItems: "center" }}>
-          <Text style={{ color: "grey" }}>No results.</Text>
+          <Text style={{ color: colors.textSecondary }}>No results.</Text>
         </View>
       )}
 

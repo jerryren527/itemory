@@ -1,4 +1,4 @@
-import { AuthColors, AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { Keyboard, Platform, Pressable, ScrollView, View } from "react-native";
@@ -10,6 +10,7 @@ type AuthScreenContainerProps = {
 };
 
 export function AuthScreenContainer({ children, onBack }: AuthScreenContainerProps) {
+  const { AuthColors, AuthStyles } = useAuthTheme();
   const insets = useSafeAreaInsets();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(0);

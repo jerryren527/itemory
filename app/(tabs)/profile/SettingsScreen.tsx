@@ -2,6 +2,7 @@ import ProfileHeaderCard from "@/components/profile/ProfileHeaderCard";
 import { SettingsRow, SettingsSection } from "@/components/profile/SettingsSection";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import api from "@/interceptors/axios";
 import { pushModal } from "@/utils/modalNav";
 import { setPendingTextCallback } from "@/utils/textSelectionBridge";
@@ -14,6 +15,7 @@ import { Alert, Platform, ScrollView, Text, View } from "react-native";
 
 const SettingsScreen = () => {
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
+  const colors = useThemeColors();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [linking, setLinking] = useState<boolean>(false);
   const [unlinking, setUnlinking] = useState<boolean>(false);
@@ -168,7 +170,7 @@ const SettingsScreen = () => {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#F2F2F7" }} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.backgroundSecondary }} contentContainerStyle={{ paddingBottom: 40 }}>
       <ProfileHeaderCard
         username={state.username}
         email={state.email}
@@ -183,7 +185,7 @@ const SettingsScreen = () => {
             flexDirection: "row",
             alignItems: "center",
             gap: 8,
-            backgroundColor: "#FDECEC",
+            backgroundColor: colors.destructiveBackground,
             borderRadius: 10,
             marginTop: 16,
             marginHorizontal: 16,
@@ -191,8 +193,8 @@ const SettingsScreen = () => {
             paddingHorizontal: 14,
           }}
         >
-          <MaterialCommunityIcons name="alert-circle-outline" size={18} color="#D32F2F" />
-          <Text style={{ color: "#D32F2F", fontSize: 14, flex: 1 }}>{errorMessage}</Text>
+          <MaterialCommunityIcons name="alert-circle-outline" size={18} color={colors.destructive} />
+          <Text style={{ color: colors.destructive, fontSize: 14, flex: 1 }}>{errorMessage}</Text>
         </View>
       )}
 
@@ -222,7 +224,7 @@ const SettingsScreen = () => {
           loading={state.capabilities.hasGoogle ? unlinking : linking}
           showChevron={false}
           trailingText={state.capabilities.hasGoogle ? "Unlink" : "Connect"}
-          trailingTextColor={state.capabilities.hasGoogle ? "#D32F2F" : "#2563EB"}
+          trailingTextColor={state.capabilities.hasGoogle ? colors.destructive : colors.tint}
         />
 
         {Platform.OS === "ios" && (
@@ -234,7 +236,7 @@ const SettingsScreen = () => {
             loading={state.capabilities.hasApple ? unlinkingApple : linkingApple}
             showChevron={false}
             trailingText={state.capabilities.hasApple ? "Unlink" : "Connect"}
-            trailingTextColor={state.capabilities.hasApple ? "#D32F2F" : "#2563EB"}
+            trailingTextColor={state.capabilities.hasApple ? colors.destructive : colors.tint}
           />
         )}
       </SettingsSection>

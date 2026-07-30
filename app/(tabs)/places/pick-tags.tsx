@@ -1,4 +1,5 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { backModal } from "@/utils/modalNav";
 import { consumePendingTagsCallback } from "@/utils/tagsSelectionBridge";
 import { joinTags, parseTags } from "@/utils/tags";
@@ -11,6 +12,7 @@ export default function PickTagsScreen() {
   const { tags: initialTags, title } = useLocalSearchParams<{ tags?: string; title?: string }>();
   const [tags, setTags] = useState<string[]>(() => parseTags(initialTags ?? "") ?? []);
   const [draft, setDraft] = useState("");
+  const colors = useThemeColors();
 
   const finish = (result: string) => {
     const callback = consumePendingTagsCallback();
@@ -56,7 +58,7 @@ export default function PickTagsScreen() {
       <Stack.Screen
         options={{
           title: title || "Tags",
-          headerLeft: () => <HeaderTextButton title="Clear" color="#808080" onPress={() => finish("")} />,
+          headerLeft: () => <HeaderTextButton title="Clear" color={colors.textSecondary} onPress={() => finish("")} />,
           headerRight: () => <HeaderTextButton title="Save" bold onPress={handleSave} />,
         }}
       />
@@ -69,7 +71,7 @@ export default function PickTagsScreen() {
               alignItems: "center",
               gap: 8,
               borderWidth: 1,
-              borderColor: "#ccc",
+              borderColor: colors.border,
               borderRadius: 8,
               padding: 8,
               minHeight: 44,
@@ -82,16 +84,16 @@ export default function PickTagsScreen() {
                   flexDirection: "row",
                   alignItems: "center",
                   gap: 6,
-                  backgroundColor: "#EEF2FF",
+                  backgroundColor: colors.surfaceAlt,
                   borderRadius: 16,
                   paddingVertical: 6,
                   paddingLeft: 12,
                   paddingRight: 8,
                 }}
               >
-                <Text style={{ fontSize: 14, color: "#3730A3" }}>{tag}</Text>
+                <Text style={{ fontSize: 14, color: colors.tint }}>{tag}</Text>
                 <TouchableOpacity onPress={() => removeTag(index)} hitSlop={8}>
-                  <MaterialCommunityIcons name="close" size={14} color="#3730A3" />
+                  <MaterialCommunityIcons name="close" size={14} color={colors.tint} />
                 </TouchableOpacity>
               </View>
             ))}
@@ -102,11 +104,11 @@ export default function PickTagsScreen() {
               onSubmitEditing={handleSubmitEditing}
               submitBehavior="submit"
               placeholder={tags.length === 0 ? "Type a tag and press space or return" : "Add another"}
-              placeholderTextColor="grey"
+              placeholderTextColor={colors.textSecondary}
               autoCapitalize="none"
               autoFocus
               returnKeyType="done"
-              style={{ flexGrow: 1, minWidth: 100, fontSize: 16, paddingVertical: 6 }}
+              style={{ flexGrow: 1, minWidth: 100, fontSize: 16, paddingVertical: 6, color: colors.text }}
             />
           </View>
         </KeyboardAvoidingView>

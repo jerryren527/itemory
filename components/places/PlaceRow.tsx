@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useThemeColors } from "@/hooks/useThemeColors";
 
 export type PlaceRowItem = {
   id: number;
@@ -35,13 +36,14 @@ export default function PlaceRow({
   onReturnPress,
   showDateModified,
 }: PlaceRowProps) {
+  const colors = useThemeColors();
   return (
     <View
       style={{
         flexDirection: "row",
         alignItems: "center",
         borderBottomWidth: 1,
-        borderBottomColor: "#eee",
+        borderBottomColor: colors.border,
       }}
     >
       <TouchableOpacity
@@ -54,32 +56,34 @@ export default function PlaceRow({
           paddingHorizontal: 16,
         }}
       >
-        <MaterialCommunityIcons name={ICON_BY_TYPE[item.type]} size={28} color="#555" />
+        <MaterialCommunityIcons name={ICON_BY_TYPE[item.type]} size={28} color={colors.icon} />
         <View style={{ marginLeft: 14, flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <Text style={{ fontSize: 16 }}>{item.name}</Text>
+            <Text style={{ fontSize: 16, color: colors.text }}>{item.name}</Text>
             {item.is_starred && <MaterialCommunityIcons name="star" size={16} color="#F5A623" />}
           </View>
           {showDateModified && item.updated_at ? (
-            <Text style={{ fontSize: 13, color: "grey" }}>Modified: {new Date(item.updated_at).toLocaleString()}</Text>
+            <Text style={{ fontSize: 13, color: colors.textSecondary }}>
+              Modified: {new Date(item.updated_at).toLocaleString()}
+            </Text>
           ) : (
-            subtitle && <Text style={{ fontSize: 13, color: "grey" }}>{subtitle}</Text>
+            subtitle && <Text style={{ fontSize: 13, color: colors.textSecondary }}>{subtitle}</Text>
           )}
           {item.type === "item" && item.quantity != null && (
-            <Text style={{ fontSize: 13, color: "grey" }}>Qty: {item.quantity}</Text>
+            <Text style={{ fontSize: 13, color: colors.textSecondary }}>Qty: {item.quantity}</Text>
           )}
         </View>
       </TouchableOpacity>
 
       {onReturnPress && (
         <TouchableOpacity onPress={() => onReturnPress(item)} hitSlop={12} style={{ paddingHorizontal: 16 }}>
-          <Text style={{ color: "#2563EB", fontWeight: "600" }}>Return</Text>
+          <Text style={{ color: colors.tint, fontWeight: "600" }}>Return</Text>
         </TouchableOpacity>
       )}
 
       {onMenuPress && (
         <TouchableOpacity onPress={() => onMenuPress(item)} hitSlop={12} style={{ padding: 16 }}>
-          <MaterialCommunityIcons name="dots-vertical" size={22} color="#555" />
+          <MaterialCommunityIcons name="dots-vertical" size={22} color={colors.icon} />
         </TouchableOpacity>
       )}
     </View>

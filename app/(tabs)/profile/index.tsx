@@ -2,6 +2,7 @@ import ProfileHeaderCard from "@/components/profile/ProfileHeaderCard";
 import { SettingsRow, SettingsSection } from "@/components/profile/SettingsSection";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import api from "@/interceptors/axios";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import Constants from "expo-constants";
@@ -14,6 +15,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
   const [signingOut, setSigningOut] = useState(false);
+  const colors = useThemeColors();
 
   const accountSubtitle = [
     state.capabilities.hasPassword && "Password",
@@ -49,7 +51,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#F2F2F7" }} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.backgroundSecondary }} contentContainerStyle={{ paddingBottom: 40 }}>
       <ProfileHeaderCard
         username={state.username}
         email={state.email}

@@ -5,7 +5,7 @@ import { AuthTextField } from "@/components/AuthTextField";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
-import { AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useContext, useRef, useState } from "react";
@@ -23,6 +23,7 @@ const SignUpPage = () => {
   const { dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext); // keep here for testing purposes.
 
   const router = useRouter();
+  const { AuthStyles } = useAuthTheme();
   const { control, handleSubmit, watch } = useForm({
     defaultValues: {
       email: "",

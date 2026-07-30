@@ -1,4 +1,4 @@
-import { AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import { Control, Controller } from "react-hook-form";
 import { Text, TextInput, TextInputProps, View } from "react-native";
 
@@ -11,6 +11,7 @@ interface FormInputProps {
 }
 
 export function FormInput({ control, name, label, rules, inputProps }: FormInputProps) {
+  const { AuthStyles } = useAuthTheme();
   return (
     <View>
       <Controller

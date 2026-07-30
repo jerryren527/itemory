@@ -1,4 +1,5 @@
 import PlaceRow, { PlaceRowItem } from "@/components/places/PlaceRow";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
@@ -27,6 +28,7 @@ export default function StarredScreen() {
   const [sortOption, setSortOption] = useState<SortOption>("name_asc");
   const [sortExpanded, setSortExpanded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const colors = useThemeColors();
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -110,12 +112,16 @@ export default function StarredScreen() {
               paddingVertical: 6,
               paddingHorizontal: 12,
               borderRadius: 16,
-              backgroundColor: "#F1F3F4",
+              backgroundColor: colors.surfaceAlt,
             }}
           >
-            <MaterialCommunityIcons name="sort" size={16} color="#555" />
-            <Text style={{ fontSize: 14 }}>{SORT_LABELS[sortOption]}</Text>
-            <MaterialCommunityIcons name={sortExpanded ? "chevron-up" : "chevron-down"} size={16} color="#555" />
+            <MaterialCommunityIcons name="sort" size={16} color={colors.icon} />
+            <Text style={{ fontSize: 14, color: colors.text }}>{SORT_LABELS[sortOption]}</Text>
+            <MaterialCommunityIcons
+              name={sortExpanded ? "chevron-up" : "chevron-down"}
+              size={16}
+              color={colors.icon}
+            />
           </TouchableOpacity>
 
           {sortExpanded && (
@@ -127,7 +133,7 @@ export default function StarredScreen() {
                 marginTop: 4,
                 minWidth: 240,
                 borderRadius: 8,
-                backgroundColor: "white",
+                backgroundColor: colors.surface,
                 overflow: "hidden",
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
@@ -148,10 +154,10 @@ export default function StarredScreen() {
                     paddingHorizontal: 12,
                   }}
                 >
-                  <Text style={{ fontSize: 14, fontWeight: key === sortOption ? "600" : "400" }}>
+                  <Text style={{ fontSize: 14, fontWeight: key === sortOption ? "600" : "400", color: colors.text }}>
                     {SORT_LABELS[key]}
                   </Text>
-                  {key === sortOption && <MaterialCommunityIcons name="check" size={16} color="#2563EB" />}
+                  {key === sortOption && <MaterialCommunityIcons name="check" size={16} color={colors.tint} />}
                 </TouchableOpacity>
               ))}
             </View>
@@ -161,7 +167,7 @@ export default function StarredScreen() {
 
       {items && items.length === 0 && (
         <View style={{ paddingVertical: 40, alignItems: "center" }}>
-          <Text style={{ color: "grey" }}>Nothing starred yet.</Text>
+          <Text style={{ color: colors.textSecondary }}>Nothing starred yet.</Text>
         </View>
       )}
 

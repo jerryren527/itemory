@@ -2,7 +2,7 @@ import { AuthButton } from "@/components/AuthButton";
 import { AuthDivider } from "@/components/AuthDivider";
 import { AuthScreenContainer } from "@/components/AuthScreenContainer";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
-import { AuthColors, AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -11,6 +11,7 @@ import { Text, View } from "react-native";
 
 const CheckYourEmailPage = () => {
   const router = useRouter();
+  const { AuthColors, AuthStyles } = useAuthTheme();
   const params = useLocalSearchParams();
   const { handleGoogleSignIn } = useGoogleSignIn();
 

@@ -7,7 +7,7 @@ import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
 import api from "@/interceptors/axios";
-import { AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import axios from "axios";
 import { useRouter } from "expo-router";
@@ -23,6 +23,7 @@ type LoginFormType = {
 
 const LoginPage = () => {
   const router = useRouter();
+  const { AuthStyles } = useAuthTheme();
   const { control, handleSubmit } = useForm({
     defaultValues: {
       identifier: "",

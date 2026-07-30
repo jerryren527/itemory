@@ -1,4 +1,4 @@
-import { AuthColors, AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { Text, View } from "react-native";
@@ -8,6 +8,7 @@ type AuthErrorBannerProps = {
 };
 
 export function AuthErrorBanner({ message }: AuthErrorBannerProps) {
+  const { AuthColors, AuthStyles } = useAuthTheme();
   if (!message) return null;
 
   return (

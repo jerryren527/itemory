@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TextInput, TouchableOpacity, View } from "react-native";
+import { useThemeColors } from "@/hooks/useThemeColors";
 
 type SearchBarProps =
   | {
@@ -17,12 +18,13 @@ type SearchBarProps =
     };
 
 export default function SearchBar(props: SearchBarProps) {
+  const colors = useThemeColors();
   return (
     <View
       style={{
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#F1F3F4",
+        backgroundColor: colors.surfaceAlt,
         borderRadius: 24,
         paddingHorizontal: 14,
         height: 44,
@@ -30,7 +32,7 @@ export default function SearchBar(props: SearchBarProps) {
         marginVertical: 8,
       }}
     >
-      <MaterialCommunityIcons name="magnify" size={20} color="grey" />
+      <MaterialCommunityIcons name="magnify" size={20} color={colors.textSecondary} />
       {props.mode === "link" ? (
         <TouchableOpacity
           onPress={props.onPress}
@@ -40,7 +42,8 @@ export default function SearchBar(props: SearchBarProps) {
             editable={false}
             pointerEvents="none"
             placeholder={props.placeholder}
-            style={{ fontSize: 16, color: "black" }}
+            placeholderTextColor={colors.textMuted}
+            style={{ fontSize: 16, color: colors.text }}
           />
         </TouchableOpacity>
       ) : (
@@ -50,8 +53,9 @@ export default function SearchBar(props: SearchBarProps) {
           onSubmitEditing={props.onSubmit}
           returnKeyType="search"
           placeholder={props.placeholder}
+          placeholderTextColor={colors.textMuted}
           autoFocus={props.autoFocus}
-          style={{ flex: 1, height: "100%", paddingLeft: 10, fontSize: 16, color: "black" }}
+          style={{ flex: 1, height: "100%", paddingLeft: 10, fontSize: 16, color: colors.text }}
         />
       )}
     </View>

@@ -1,16 +1,19 @@
+import { useThemeColors } from "@/hooks/useThemeColors";
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 export default function SplashScreen() {
+  const colors = useThemeColors();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* <View style={styles.logoContainer}>
         <Text style={styles.logo}>Itemory</Text>
       </View> */}
 
-      <ActivityIndicator size="large" color="#4F46E5" />
+      <ActivityIndicator size="large" color={colors.tint} />
 
-      <Text style={styles.loadingText}>Loading...</Text>
+      <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading...</Text>
     </View>
   );
 }
@@ -18,8 +21,6 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#0F172A",
-    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -31,13 +32,11 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 42,
     fontWeight: "700",
-    color: "black",
     letterSpacing: 1,
   },
 
   loadingText: {
     marginTop: 20,
     fontSize: 14,
-    color: "#94A3B8",
   },
 });

@@ -13,6 +13,7 @@ import { router, Stack, useFocusEffect } from "expo-router";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 import SearchBar from "@/components/places/SearchBar";
+import { useThemeColors } from "@/hooks/useThemeColors";
 
 type SortOption = "name_asc" | "name_desc" | "date_new" | "date_old";
 
@@ -36,6 +37,7 @@ export default function Index() {
   const [sortOption, setSortOption] = useState<SortOption>("name_asc");
   const [pendingHomeAction, setPendingHomeAction] = useState<PendingHomeAction | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const colors = useThemeColors();
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -249,7 +251,9 @@ export default function Index() {
 
       {primaryHome === null && (
         <View style={{ padding: 16, alignItems: "center" }}>
-          <Text style={{ fontSize: 16, color: "grey", textAlign: "center" }}>You don&apos;t have a home yet.</Text>
+          <Text style={{ fontSize: 16, color: colors.textSecondary, textAlign: "center" }}>
+            You don&apos;t have a home yet.
+          </Text>
         </View>
       )}
 
@@ -266,11 +270,11 @@ export default function Index() {
             paddingVertical: 6,
             paddingHorizontal: 12,
             borderRadius: 16,
-            backgroundColor: "#F1F3F4",
+            backgroundColor: colors.surfaceAlt,
           }}
         >
-          <MaterialCommunityIcons name="sort" size={16} color="#555" />
-          <Text style={{ fontSize: 14 }}>{SORT_LABELS[sortOption]}</Text>
+          <MaterialCommunityIcons name="sort" size={16} color={colors.icon} />
+          <Text style={{ fontSize: 14, color: colors.text }}>{SORT_LABELS[sortOption]}</Text>
         </TouchableOpacity>
       )}
 

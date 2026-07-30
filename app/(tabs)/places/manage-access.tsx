@@ -1,6 +1,7 @@
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -17,6 +18,7 @@ export default function ManageAccessScreen() {
   const [members, setMembers] = useState<Member[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const colors = useThemeColors();
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -67,7 +69,7 @@ export default function ManageAccessScreen() {
     <>
       <Stack.Screen options={{ title: "Manage Access" }} />
       <View style={{ flex: 1, padding: 16 }}>
-        {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
+        {errorMessage && <Text style={{ color: colors.destructive }}>{errorMessage}</Text>}
         {loading && <ActivityIndicator />}
 
         {!loading && members && (
@@ -82,15 +84,15 @@ export default function ManageAccessScreen() {
                   justifyContent: "space-between",
                   paddingVertical: 10,
                   borderBottomWidth: 1,
-                  borderBottomColor: "#eee",
+                  borderBottomColor: colors.border,
                 }}
               >
-                <Text style={{ fontSize: 16 }}>@{item.username}</Text>
+                <Text style={{ fontSize: 16, color: colors.text }}>@{item.username}</Text>
                 {/* Manage Access is creator-only, so the current user viewing this list
                     is always the creator — hide the remove control on their own row. */}
                 {item.id !== state.userId && (
                   <TouchableOpacity onPress={() => handleRemove(item)} hitSlop={8}>
-                    <MaterialCommunityIcons name="close" size={20} color="#D32F2F" />
+                    <MaterialCommunityIcons name="close" size={20} color={colors.destructive} />
                   </TouchableOpacity>
                 )}
               </View>

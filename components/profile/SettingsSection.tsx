@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Children, ReactElement, ReactNode } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
@@ -8,6 +9,7 @@ type SettingsSectionProps = {
 };
 
 export function SettingsSection({ title, children }: SettingsSectionProps) {
+  const colors = useThemeColors();
   const rows = Children.toArray(children);
 
   return (
@@ -17,7 +19,7 @@ export function SettingsSection({ title, children }: SettingsSectionProps) {
           style={{
             fontSize: 13,
             fontWeight: "600",
-            color: "grey",
+            color: colors.textSecondary,
             textTransform: "uppercase",
             letterSpacing: 0.5,
             marginBottom: 6,
@@ -29,7 +31,7 @@ export function SettingsSection({ title, children }: SettingsSectionProps) {
       )}
       <View
         style={{
-          backgroundColor: "white",
+          backgroundColor: colors.surface,
           borderRadius: 12,
           overflow: "hidden",
           shadowColor: "#000",
@@ -40,7 +42,7 @@ export function SettingsSection({ title, children }: SettingsSectionProps) {
         }}
       >
         {rows.map((row, index) => (
-          <View key={index} style={{ borderTopWidth: index === 0 ? 0 : 1, borderTopColor: "#eee" }}>
+          <View key={index} style={{ borderTopWidth: index === 0 ? 0 : 1, borderTopColor: colors.border }}>
             {row as ReactElement}
           </View>
         ))}
@@ -67,14 +69,15 @@ export function SettingsRow({
   label,
   subtitle,
   trailingText,
-  trailingTextColor = "grey",
+  trailingTextColor,
   showChevron = true,
   onPress,
   destructive,
   loading,
   loadingColor,
 }: SettingsRowProps) {
-  const contentColor = destructive ? "#D32F2F" : "black";
+  const colors = useThemeColors();
+  const contentColor = destructive ? colors.destructive : colors.text;
 
   const content = (
     <View
@@ -86,23 +89,27 @@ export function SettingsRow({
         paddingHorizontal: 16,
       }}
     >
-      <MaterialCommunityIcons name={icon} size={22} color={destructive ? "#D32F2F" : "#555"} />
+      <MaterialCommunityIcons name={icon} size={22} color={destructive ? colors.destructive : colors.icon} />
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 16, color: contentColor }}>{label}</Text>
         {subtitle && (
-          <Text style={{ fontSize: 13, color: "grey", marginTop: 1 }} numberOfLines={1}>
+          <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 1 }} numberOfLines={1}>
             {subtitle}
           </Text>
         )}
       </View>
       {loading ? (
-        <ActivityIndicator size="small" color={loadingColor ?? (destructive ? "#D32F2F" : "#2563EB")} />
+        <ActivityIndicator size="small" color={loadingColor ?? (destructive ? colors.destructive : colors.tint)} />
       ) : (
         <>
           {trailingText && (
-            <Text style={{ fontSize: 14, fontWeight: "600", color: trailingTextColor }}>{trailingText}</Text>
+            <Text style={{ fontSize: 14, fontWeight: "600", color: trailingTextColor ?? colors.textSecondary }}>
+              {trailingText}
+            </Text>
           )}
-          {onPress && showChevron && <MaterialCommunityIcons name="chevron-right" size={20} color="#C4C4C4" />}
+          {onPress && showChevron && (
+            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textMuted} />
+          )}
         </>
       )}
     </View>

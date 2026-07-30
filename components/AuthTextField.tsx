@@ -1,4 +1,4 @@
-import { AuthColors, AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { forwardRef, useState } from "react";
 import { Control, Controller, RegisterOptions } from "react-hook-form";
@@ -38,6 +38,7 @@ export const AuthTextField = forwardRef<TextInput, AuthTextFieldProps>(function 
   },
   ref,
 ) {
+  const { AuthColors, AuthStyles } = useAuthTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [hideText, setHideText] = useState(isPassword);
 

@@ -1,5 +1,6 @@
 import { consumePendingOptionCallback } from "@/utils/optionSelectionBridge";
 import { backModal } from "@/utils/modalNav";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { ScrollView, Text, TouchableOpacity } from "react-native";
@@ -11,6 +12,7 @@ export default function PickOptionScreen() {
   const params = useLocalSearchParams<{ title?: string; options?: string; value?: string; layout?: string }>();
   const options: Option[] = params.options ? JSON.parse(params.options) : [];
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
 
   const select = (value: string) => {
     const callback = consumePendingOptionCallback();
@@ -34,10 +36,10 @@ export default function PickOptionScreen() {
                   style={{
                     paddingVertical: 14,
                     borderTopWidth: index === 0 ? 1 : 0,
-                    borderTopColor: "#eee",
+                    borderTopColor: colors.border,
                     borderBottomWidth: 1,
-                    borderBottomColor: "#eee",
-                    backgroundColor: selected ? "#EEF2FF" : undefined,
+                    borderBottomColor: colors.border,
+                    backgroundColor: selected ? colors.surfaceAlt : undefined,
                   }}
                 >
                   <Text
@@ -45,7 +47,7 @@ export default function PickOptionScreen() {
                       fontSize: 16,
                       textAlign: "center",
                       fontWeight: selected ? "700" : "400",
-                      color: selected ? "#2563EB" : "#000",
+                      color: selected ? colors.tint : colors.text,
                     }}
                   >
                     {option.label}
@@ -64,13 +66,15 @@ export default function PickOptionScreen() {
                   paddingVertical: 14,
                   paddingHorizontal: 16,
                   borderTopWidth: index === 0 ? 1 : 0,
-                  borderTopColor: "#eee",
+                  borderTopColor: colors.border,
                   borderBottomWidth: 1,
-                  borderBottomColor: "#eee",
+                  borderBottomColor: colors.border,
                 }}
               >
-                <Text style={{ fontSize: 16 }}>{option.label}</Text>
-                {params.value === option.value && <MaterialCommunityIcons name="check" size={20} color="#2563EB" />}
+                <Text style={{ fontSize: 16, color: colors.text }}>{option.label}</Text>
+                {params.value === option.value && (
+                  <MaterialCommunityIcons name="check" size={20} color={colors.tint} />
+                )}
               </TouchableOpacity>
             ))}
       </ScrollView>

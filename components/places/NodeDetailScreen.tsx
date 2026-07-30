@@ -1,6 +1,7 @@
 import HeaderIconButton from "@/components/places/HeaderIconButton";
 import PlaceRow, { PlaceRowItem } from "@/components/places/PlaceRow";
 import SearchBar from "@/components/places/SearchBar";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
@@ -93,6 +94,8 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [photoLoadError, setPhotoLoadError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  const colors = useThemeColors();
 
   useEffect(() => {
     setPhotoLoadError(null);
@@ -437,7 +440,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
       <>
         <Stack.Screen options={{ title }} />
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text>Something went wrong.</Text>
+          <Text style={{ color: colors.text }}>Something went wrong.</Text>
         </View>
       </>
     );
@@ -452,7 +455,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
         <Stack.Screen
           options={{
             title,
-            headerRight: () => <HeaderIconButton icon="dots-vertical" color="#555" onPress={openSelfActionSheet} />,
+            headerRight: () => <HeaderIconButton icon="dots-vertical" color={colors.icon} onPress={openSelfActionSheet} />,
           }}
         />
         <ScrollView
@@ -463,9 +466,9 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             onPress={() => openItemField(item, "name")}
             style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 }}
           >
-            <MaterialCommunityIcons name="cube-outline" size={32} color="#555" />
-            <Text style={{ fontSize: 22, fontWeight: "600", flex: 1 }}>{item.name}</Text>
-            <MaterialCommunityIcons name="pencil-outline" size={18} color="#999" />
+            <MaterialCommunityIcons name="cube-outline" size={32} color={colors.icon} />
+            <Text style={{ fontSize: 22, fontWeight: "600", flex: 1, color: colors.text }}>{item.name}</Text>
+            <MaterialCommunityIcons name="pencil-outline" size={18} color={colors.textMuted} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => openPhotoViewer(item)}>
@@ -475,22 +478,30 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
                   height: 120,
                   borderRadius: 8,
                   marginBottom: 16,
-                  backgroundColor: "#fdecea",
+                  backgroundColor: colors.destructiveBackground,
                   justifyContent: "center",
                   alignItems: "center",
                   borderWidth: 1,
-                  borderColor: "#f5c6cb",
+                  borderColor: colors.destructive,
                 }}
               >
-                <MaterialCommunityIcons name="image-off-outline" size={22} color="#c0392b" />
-                <Text style={{ color: "#c0392b", fontSize: 13, marginTop: 4, textAlign: "center", paddingHorizontal: 12 }}>
+                <MaterialCommunityIcons name="image-off-outline" size={22} color={colors.destructive} />
+                <Text
+                  style={{ color: colors.destructive, fontSize: 13, marginTop: 4, textAlign: "center", paddingHorizontal: 12 }}
+                >
                   Photo failed to load ({photoLoadError})
                 </Text>
               </View>
             ) : item.picture ? (
               <Image
                 source={{ uri: item.picture }}
-                style={{ width: "100%", height: 200, borderRadius: 8, marginBottom: 16, backgroundColor: "#eee" }}
+                style={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: 8,
+                  marginBottom: 16,
+                  backgroundColor: colors.surfaceAlt,
+                }}
                 contentFit="cover"
                 onError={(e) => {
                   console.log("Item photo failed to load:", item.picture, e.error);
@@ -503,16 +514,16 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
                   height: 80,
                   borderRadius: 8,
                   marginBottom: 16,
-                  backgroundColor: "#f5f5f5",
+                  backgroundColor: colors.surfaceAlt,
                   justifyContent: "center",
                   alignItems: "center",
                   borderWidth: 1,
-                  borderColor: "#ddd",
+                  borderColor: colors.border,
                   borderStyle: "dashed",
                 }}
               >
-                <MaterialCommunityIcons name="image-plus-outline" size={22} color="#999" />
-                <Text style={{ color: "grey", fontSize: 13, marginTop: 4 }}>Add Photo</Text>
+                <MaterialCommunityIcons name="image-plus-outline" size={22} color={colors.textMuted} />
+                <Text style={{ color: colors.textSecondary, fontSize: 13, marginTop: 4 }}>Add Photo</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -566,7 +577,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
         {data.children.length === 0 ? (
           <View style={{ paddingVertical: 40, alignItems: "center" }}>
-            <Text style={{ color: "grey", textAlign: "center", paddingHorizontal: 24 }}>
+            <Text style={{ color: colors.textSecondary, textAlign: "center", paddingHorizontal: 24 }}>
               {EMPTY_CHILDREN_MESSAGE[nodeType] ?? "This is empty."}
             </Text>
           </View>
@@ -591,6 +602,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
 }
 
 function PressableDetailRow({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
+  const colors = useThemeColors();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -599,12 +611,12 @@ function PressableDetailRow({ label, value, onPress }: { label: string; value: s
         alignItems: "center",
         paddingVertical: 10,
         borderBottomWidth: 1,
-        borderBottomColor: "#eee",
+        borderBottomColor: colors.border,
       }}
     >
-      <Text style={{ width: 100, color: "grey", fontSize: 14 }}>{label}</Text>
-      <Text style={{ flex: 1, fontSize: 14 }}>{value}</Text>
-      <MaterialCommunityIcons name="chevron-right" size={18} color="#ccc" />
+      <Text style={{ width: 100, color: colors.textSecondary, fontSize: 14 }}>{label}</Text>
+      <Text style={{ flex: 1, fontSize: 14, color: colors.text }}>{value}</Text>
+      <MaterialCommunityIcons name="chevron-right" size={18} color={colors.textMuted} />
     </TouchableOpacity>
   );
 }

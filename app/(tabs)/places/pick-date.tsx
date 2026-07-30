@@ -1,4 +1,5 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { consumePendingDateCallback } from "@/utils/dateSelectionBridge";
 import { backModal } from "@/utils/modalNav";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -45,6 +46,7 @@ function formatDate(year: number, month: number, day: number): string {
 export default function PickDateScreen() {
   const { value, title } = useLocalSearchParams<{ value?: string; title?: string }>();
   const initial = useMemo(() => parseDate(value), [value]);
+  const colors = useThemeColors();
 
   const [year, setYear] = useState(initial.year);
   const [month, setMonth] = useState(initial.month);
@@ -85,14 +87,14 @@ export default function PickDateScreen() {
       <Stack.Screen
         options={{
           title: title || "Select Date",
-          headerLeft: () => <HeaderTextButton title="Clear" color="#808080" onPress={() => finish("")} />,
+          headerLeft: () => <HeaderTextButton title="Clear" color={colors.textSecondary} onPress={() => finish("")} />,
           headerRight: () => (
             <HeaderTextButton title="Save" bold onPress={() => finish(formatDate(year, month, day))} />
           ),
         }}
       />
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", marginBottom: 20 }}>
+        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", marginBottom: 20, color: colors.text }}>
           {MONTH_NAMES[month - 1]} {day}, {year}
         </Text>
 
@@ -134,6 +136,7 @@ function WheelColumn({
   onSelect: (value: number) => void;
   width: number;
 }) {
+  const colors = useThemeColors();
   const listRef = useRef<FlatList<WheelItem>>(null);
   const selectedIndex = Math.max(
     0,
@@ -165,7 +168,10 @@ function WheelColumn({
 
   return (
     <View style={{ width, height: COLUMN_HEIGHT }}>
-      <View pointerEvents="none" style={[styles.centerBand, { top: VERTICAL_PADDING }]} />
+      <View
+        pointerEvents="none"
+        style={[styles.centerBand, { top: VERTICAL_PADDING, borderColor: colors.border }]}
+      />
       <FlatList
         ref={listRef}
         data={items}
@@ -194,7 +200,7 @@ function WheelColumn({
                 style={{
                   fontSize: 18,
                   fontWeight: isSelected ? "700" : "400",
-                  color: isSelected ? "#2563EB" : "#333",
+                  color: isSelected ? colors.tint : colors.text,
                 }}
               >
                 {item.label}

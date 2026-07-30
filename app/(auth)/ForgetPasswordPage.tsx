@@ -1,7 +1,7 @@
 import { AuthButton } from "@/components/AuthButton";
 import { AuthScreenContainer } from "@/components/AuthScreenContainer";
 import { AuthTextField } from "@/components/AuthTextField";
-import { AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -15,6 +15,7 @@ type ForgetPasswordFormType = {
 
 const ForgetPasswordPage = () => {
   const router = useRouter();
+  const { AuthStyles } = useAuthTheme();
   const [loading, setLoading] = useState<boolean>(false);
 
   const { control, handleSubmit } = useForm({

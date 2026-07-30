@@ -1,4 +1,4 @@
-import { AuthColors, AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import React from "react";
 import { ActivityIndicator, GestureResponderEvent, Pressable, StyleProp, Text, ViewStyle } from "react-native";
 
@@ -12,6 +12,7 @@ type AuthButtonProps = {
 };
 
 export function AuthButton({ title, onPress, variant = "primary", loading = false, disabled = false, style }: AuthButtonProps) {
+  const { AuthColors, AuthStyles } = useAuthTheme();
   const isDisabled = disabled || loading;
   const isSecondary = variant === "secondary";
 

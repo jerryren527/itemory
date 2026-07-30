@@ -4,7 +4,7 @@ import { AuthErrorBanner } from "@/components/AuthErrorBanner";
 import { AuthScreenContainer } from "@/components/AuthScreenContainer";
 import useAppleSignIn from "@/domain/auth/useAppleSignIn";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
-import { AuthSpacing, AuthStyles } from "@/styles/auth.styles";
+import { AuthSpacing, useAuthTheme } from "@/styles/auth.styles";
 import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import { HttpStatusCode } from "axios";
 import * as AppleAuthentication from "expo-apple-authentication";
@@ -14,6 +14,7 @@ import { Image, Platform, Text, View } from "react-native";
 
 const LandingPage = () => {
   const router = useRouter();
+  const { AuthStyles } = useAuthTheme();
   const { handleGoogleSignIn } = useGoogleSignIn();
   const { handleAppleSignIn } = useAppleSignIn();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

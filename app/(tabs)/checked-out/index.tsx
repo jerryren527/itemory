@@ -1,4 +1,5 @@
 import PlaceRow, { PlaceRowItem } from "@/components/places/PlaceRow";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
@@ -26,6 +27,7 @@ export default function CheckedOutScreen() {
   const [sortOption, setSortOption] = useState<SortOption>("name_asc");
   const [returningIds, setReturningIds] = useState<Set<number>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
+  const colors = useThemeColors();
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
@@ -124,21 +126,21 @@ export default function CheckedOutScreen() {
             paddingVertical: 6,
             paddingHorizontal: 12,
             borderRadius: 16,
-            backgroundColor: "#F1F3F4",
+            backgroundColor: colors.surfaceAlt,
           }}
         >
           <MaterialCommunityIcons
             name={sortOption === "name_asc" ? "sort-alphabetical-ascending" : "sort-alphabetical-descending"}
             size={16}
-            color="#555"
+            color={colors.icon}
           />
-          <Text style={{ fontSize: 14 }}>{SORT_LABELS[sortOption]}</Text>
+          <Text style={{ fontSize: 14, color: colors.text }}>{SORT_LABELS[sortOption]}</Text>
         </TouchableOpacity>
       )}
 
       {items && items.length === 0 && (
         <View style={{ paddingVertical: 40, alignItems: "center" }}>
-          <Text style={{ color: "grey" }}>Nothing checked out.</Text>
+          <Text style={{ color: colors.textSecondary }}>Nothing checked out.</Text>
         </View>
       )}
 

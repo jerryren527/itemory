@@ -1,28 +1,7 @@
 // auth.styles.ts
-import { StyleSheet } from "react-native";
-
-export const AuthColors = {
-  background: "#FFFFFF",
-  surface: "#F3F4F6", // gray-100, filled input background
-  surfaceFocused: "#EFF6FF", // blue-50
-  primary: "#2563EB", // blue-600
-  primaryPressed: "#1D4ED8", // blue-700
-  primaryDisabled: "#93C5FD", // blue-300
-  primaryText: "#FFFFFF",
-  secondarySurface: "#EFF6FF", // blue-50
-  text: "#111827", // gray-900
-  mutedText: "#6B7280", // gray-500
-  placeholder: "#9CA3AF", // gray-400
-  icon: "#9CA3AF",
-  iconFocused: "#2563EB",
-  border: "#E5E7EB", // gray-200
-  borderFocused: "#2563EB",
-  divider: "#E5E7EB",
-  error: "#DC2626", // red-600
-  errorBackground: "#FEF2F2", // red-50
-  errorBorder: "#FECACA", // red-200
-  backButtonSurface: "rgba(17, 24, 39, 0.05)",
-};
+import { ThemeColors } from "@/constants/theme";
+import { useThemeColors } from "@/hooks/useThemeColors";
+import { useColorScheme, StyleSheet } from "react-native";
 
 export const AuthSpacing = {
   xs: 4,
@@ -44,239 +23,275 @@ const MAX_CONTENT_WIDTH = 420;
 const CONTROL_HEIGHT = 52;
 const RADIUS = 14;
 
-export const AuthStyles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: AuthColors.background,
-  },
+function buildAuthColors(colors: ThemeColors, isDark: boolean) {
+  return {
+    background: colors.background,
+    surface: colors.surfaceAlt,
+    surfaceFocused: isDark ? "#1E3A5F" : "#EFF6FF",
+    primary: colors.tint,
+    primaryPressed: isDark ? "#3B82F6" : "#1D4ED8",
+    primaryDisabled: isDark ? "#1E3A5F" : "#93C5FD",
+    primaryText: isDark ? "#04121F" : "#FFFFFF",
+    secondarySurface: isDark ? "#1E3A5F" : "#EFF6FF",
+    text: colors.text,
+    mutedText: colors.textSecondary,
+    placeholder: colors.textMuted,
+    icon: colors.textMuted,
+    iconFocused: colors.tint,
+    border: colors.border,
+    borderFocused: colors.tint,
+    divider: colors.border,
+    error: colors.destructive,
+    errorBackground: colors.destructiveBackground,
+    errorBorder: isDark ? "#5C2626" : "#FECACA",
+    backButtonSurface: isDark ? "rgba(255,255,255,0.08)" : "rgba(17, 24, 39, 0.05)",
+  };
+}
 
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: AuthSpacing.lg,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+function buildAuthStyles(AuthColors: ReturnType<typeof buildAuthColors>) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: AuthColors.background,
+    },
 
-  container: {
-    flex: 1,
-    paddingHorizontal: AuthSpacing.lg,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: AuthSpacing.lg,
+      justifyContent: "center",
+      alignItems: "center",
+    },
 
-  content: {
-    width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
-  },
+    container: {
+      flex: 1,
+      paddingHorizontal: AuthSpacing.lg,
+      justifyContent: "center",
+      alignItems: "center",
+    },
 
-  backButton: {
-    position: "absolute",
-    left: AuthSpacing.md,
-    zIndex: 10,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: AuthColors.backButtonSurface,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+    content: {
+      width: "100%",
+      maxWidth: MAX_CONTENT_WIDTH,
+    },
 
-  iconBadge: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: AuthColors.secondarySurface,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-    marginBottom: AuthSpacing.lg,
-  },
+    backButton: {
+      position: "absolute",
+      left: AuthSpacing.md,
+      zIndex: 10,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: AuthColors.backButtonSurface,
+      alignItems: "center",
+      justifyContent: "center",
+    },
 
-  logoBadge: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    alignSelf: "center",
-    marginBottom: AuthSpacing.lg,
-  },
+    iconBadge: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      backgroundColor: AuthColors.secondarySurface,
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "center",
+      marginBottom: AuthSpacing.lg,
+    },
 
-  title: {
-    fontSize: FONT_SIZES.title,
-    fontWeight: "700",
-    color: AuthColors.text,
-    textAlign: "center",
-    marginBottom: AuthSpacing.sm,
-    letterSpacing: -0.3,
-  },
+    logoBadge: {
+      width: 72,
+      height: 72,
+      borderRadius: 20,
+      alignSelf: "center",
+      marginBottom: AuthSpacing.lg,
+    },
 
-  subtitle: {
-    fontSize: FONT_SIZES.subtitle,
-    lineHeight: 22,
-    color: AuthColors.mutedText,
-    textAlign: "center",
-    marginBottom: AuthSpacing.xl,
-  },
+    title: {
+      fontSize: FONT_SIZES.title,
+      fontWeight: "700",
+      color: AuthColors.text,
+      textAlign: "center",
+      marginBottom: AuthSpacing.sm,
+      letterSpacing: -0.3,
+    },
 
-  fieldWrapper: {
-    marginBottom: AuthSpacing.md,
-  },
+    subtitle: {
+      fontSize: FONT_SIZES.subtitle,
+      lineHeight: 22,
+      color: AuthColors.mutedText,
+      textAlign: "center",
+      marginBottom: AuthSpacing.xl,
+    },
 
-  fieldLabel: {
-    fontSize: FONT_SIZES.label,
-    fontWeight: "600",
-    color: AuthColors.mutedText,
-    marginBottom: AuthSpacing.xs,
-    marginLeft: 2,
-  },
+    fieldWrapper: {
+      marginBottom: AuthSpacing.md,
+    },
 
-  inputShell: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: CONTROL_HEIGHT,
-    backgroundColor: AuthColors.surface,
-    borderRadius: RADIUS,
-    borderWidth: 1.5,
-    borderColor: "transparent",
-    paddingHorizontal: AuthSpacing.md,
-  },
+    fieldLabel: {
+      fontSize: FONT_SIZES.label,
+      fontWeight: "600",
+      color: AuthColors.mutedText,
+      marginBottom: AuthSpacing.xs,
+      marginLeft: 2,
+    },
 
-  inputShellFocused: {
-    backgroundColor: AuthColors.surfaceFocused,
-    borderColor: AuthColors.borderFocused,
-  },
+    inputShell: {
+      flexDirection: "row",
+      alignItems: "center",
+      height: CONTROL_HEIGHT,
+      backgroundColor: AuthColors.surface,
+      borderRadius: RADIUS,
+      borderWidth: 1.5,
+      borderColor: "transparent",
+      paddingHorizontal: AuthSpacing.md,
+    },
 
-  inputShellError: {
-    borderColor: AuthColors.error,
-  },
+    inputShellFocused: {
+      backgroundColor: AuthColors.surfaceFocused,
+      borderColor: AuthColors.borderFocused,
+    },
 
-  inputIcon: {
-    marginRight: AuthSpacing.sm,
-  },
+    inputShellError: {
+      borderColor: AuthColors.error,
+    },
 
-  input: {
-    flex: 1,
-    height: "100%",
-    fontSize: FONT_SIZES.body,
-    color: AuthColors.text,
-  },
+    inputIcon: {
+      marginRight: AuthSpacing.sm,
+    },
 
-  inputTrailingIcon: {
-    padding: AuthSpacing.xs,
-    marginLeft: AuthSpacing.xs,
-  },
+    input: {
+      flex: 1,
+      height: "100%",
+      fontSize: FONT_SIZES.body,
+      color: AuthColors.text,
+    },
 
-  fieldErrorText: {
-    fontSize: 12,
-    color: AuthColors.error,
-    marginTop: AuthSpacing.xs,
-    marginLeft: 2,
-  },
+    inputTrailingIcon: {
+      padding: AuthSpacing.xs,
+      marginLeft: AuthSpacing.xs,
+    },
 
-  errorBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: AuthColors.errorBackground,
-    borderWidth: 1,
-    borderColor: AuthColors.errorBorder,
-    borderRadius: RADIUS - 4,
-    paddingVertical: AuthSpacing.sm,
-    paddingHorizontal: AuthSpacing.md,
-    marginBottom: AuthSpacing.md,
-  },
+    fieldErrorText: {
+      fontSize: 12,
+      color: AuthColors.error,
+      marginTop: AuthSpacing.xs,
+      marginLeft: 2,
+    },
 
-  errorBannerIcon: {
-    marginRight: AuthSpacing.sm,
-  },
+    errorBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: AuthColors.errorBackground,
+      borderWidth: 1,
+      borderColor: AuthColors.errorBorder,
+      borderRadius: RADIUS - 4,
+      paddingVertical: AuthSpacing.sm,
+      paddingHorizontal: AuthSpacing.md,
+      marginBottom: AuthSpacing.md,
+    },
 
-  errorBannerText: {
-    flex: 1,
-    fontSize: 13,
-    lineHeight: 18,
-    color: AuthColors.error,
-  },
+    errorBannerIcon: {
+      marginRight: AuthSpacing.sm,
+    },
 
-  button: {
-    height: CONTROL_HEIGHT,
-    borderRadius: RADIUS,
-    backgroundColor: AuthColors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-  },
+    errorBannerText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 18,
+      color: AuthColors.error,
+    },
 
-  buttonPressed: {
-    backgroundColor: AuthColors.primaryPressed,
-  },
+    button: {
+      height: CONTROL_HEIGHT,
+      borderRadius: RADIUS,
+      backgroundColor: AuthColors.primary,
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "row",
+    },
 
-  buttonDisabled: {
-    backgroundColor: AuthColors.primaryDisabled,
-  },
+    buttonPressed: {
+      backgroundColor: AuthColors.primaryPressed,
+    },
 
-  buttonSecondary: {
-    backgroundColor: AuthColors.secondarySurface,
-  },
+    buttonDisabled: {
+      backgroundColor: AuthColors.primaryDisabled,
+    },
 
-  buttonSecondaryPressed: {
-    backgroundColor: "#DBEAFE", // blue-100
-  },
+    buttonSecondary: {
+      backgroundColor: AuthColors.secondarySurface,
+    },
 
-  buttonText: {
-    color: AuthColors.primaryText,
-    fontSize: FONT_SIZES.button,
-    fontWeight: "600",
-  },
+    buttonSecondaryPressed: {
+      backgroundColor: AuthColors.surfaceFocused,
+    },
 
-  buttonTextSecondary: {
-    color: AuthColors.primary,
-  },
+    buttonText: {
+      color: AuthColors.primaryText,
+      fontSize: FONT_SIZES.button,
+      fontWeight: "600",
+    },
 
-  buttonRow: {
-    flexDirection: "row",
-    gap: AuthSpacing.sm,
-  },
+    buttonTextSecondary: {
+      color: AuthColors.primary,
+    },
 
-  link: {
-    marginTop: AuthSpacing.lg,
-    alignSelf: "center",
-  },
+    buttonRow: {
+      flexDirection: "row",
+      gap: AuthSpacing.sm,
+    },
 
-  linkText: {
-    color: AuthColors.mutedText,
-    fontSize: FONT_SIZES.body,
-  },
+    link: {
+      marginTop: AuthSpacing.lg,
+      alignSelf: "center",
+    },
 
-  linkTextEmphasis: {
-    color: AuthColors.primary,
-    fontWeight: "600",
-  },
+    linkText: {
+      color: AuthColors.mutedText,
+      fontSize: FONT_SIZES.body,
+    },
 
-  dividerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: AuthSpacing.lg,
-  },
+    linkTextEmphasis: {
+      color: AuthColors.primary,
+      fontWeight: "600",
+    },
 
-  dividerLine: {
-    flex: 1,
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: AuthColors.divider,
-  },
+    dividerRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginVertical: AuthSpacing.lg,
+    },
 
-  dividerText: {
-    marginHorizontal: AuthSpacing.md,
-    fontSize: 13,
-    color: AuthColors.mutedText,
-  },
+    dividerLine: {
+      flex: 1,
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: AuthColors.divider,
+    },
 
-  socialButtonsGroup: {
-    width: "100%",
-    alignItems: "center",
-    gap: AuthSpacing.sm,
-  },
+    dividerText: {
+      marginHorizontal: AuthSpacing.md,
+      fontSize: 13,
+      color: AuthColors.mutedText,
+    },
 
-  formRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignContent: "center",
-  },
-});
+    socialButtonsGroup: {
+      width: "100%",
+      alignItems: "center",
+      gap: AuthSpacing.sm,
+    },
+
+    formRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      alignContent: "center",
+    },
+  });
+}
+
+export function useAuthTheme() {
+  const scheme = useColorScheme();
+  const colors = useThemeColors();
+  const isDark = scheme === "dark";
+  const AuthColors = buildAuthColors(colors, isDark);
+  const AuthStyles = buildAuthStyles(AuthColors);
+  return { AuthColors, AuthStyles };
+}

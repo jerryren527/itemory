@@ -1,6 +1,6 @@
 import { AuthButton } from "@/components/AuthButton";
 import { AuthScreenContainer } from "@/components/AuthScreenContainer";
-import { AuthColors, AuthStyles } from "@/styles/auth.styles";
+import { useAuthTheme } from "@/styles/auth.styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -8,6 +8,7 @@ import { Text, View } from "react-native";
 
 const VerifyEmailPage = () => {
   const router = useRouter();
+  const { AuthColors, AuthStyles } = useAuthTheme();
   const local = useLocalSearchParams();
 
   return (

@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 
@@ -28,13 +29,14 @@ export default function ProfileHeaderCard({
   hasGoogle,
   hasApple,
 }: ProfileHeaderCardProps) {
+  const colors = useThemeColors();
   const displayName = username ?? email ?? "there";
   const avatarSeed = username ?? email ?? "?";
 
   return (
     <View
       style={{
-        backgroundColor: "white",
+        backgroundColor: colors.surface,
         borderRadius: 16,
         marginHorizontal: 16,
         marginTop: 16,
@@ -61,12 +63,12 @@ export default function ProfileHeaderCard({
         <Text style={{ fontSize: 34, fontWeight: "600", color: "white" }}>{initialsForString(avatarSeed)}</Text>
       </View>
 
-      <Text style={{ fontSize: 20, fontWeight: "700", marginTop: 14 }}>
+      <Text style={{ fontSize: 20, fontWeight: "700", marginTop: 14, color: colors.text }}>
         {username ? `@${username}` : displayName}
       </Text>
 
       {email && (
-        <Text style={{ fontSize: 14, color: "grey", marginTop: 2 }} numberOfLines={1}>
+        <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 2 }} numberOfLines={1}>
           {email}
         </Text>
       )}
@@ -79,14 +81,14 @@ export default function ProfileHeaderCard({
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 4,
-                backgroundColor: "#F1F3F4",
+                backgroundColor: colors.surfaceAlt,
                 borderRadius: 14,
                 paddingVertical: 5,
                 paddingHorizontal: 10,
               }}
             >
-              <MaterialCommunityIcons name="check-decagram" size={14} color="#059669" />
-              <Text style={{ fontSize: 12, color: "#444" }}>Verified</Text>
+              <MaterialCommunityIcons name="check-decagram" size={14} color={colors.success} />
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Verified</Text>
             </View>
           )}
           {hasGoogle && (
@@ -95,14 +97,14 @@ export default function ProfileHeaderCard({
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 4,
-                backgroundColor: "#F1F3F4",
+                backgroundColor: colors.surfaceAlt,
                 borderRadius: 14,
                 paddingVertical: 5,
                 paddingHorizontal: 10,
               }}
             >
-              <MaterialCommunityIcons name="google" size={14} color="#555" />
-              <Text style={{ fontSize: 12, color: "#444" }}>Google</Text>
+              <MaterialCommunityIcons name="google" size={14} color={colors.icon} />
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Google</Text>
             </View>
           )}
           {hasApple && (
@@ -111,14 +113,14 @@ export default function ProfileHeaderCard({
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 4,
-                backgroundColor: "#F1F3F4",
+                backgroundColor: colors.surfaceAlt,
                 borderRadius: 14,
                 paddingVertical: 5,
                 paddingHorizontal: 10,
               }}
             >
-              <MaterialCommunityIcons name="apple" size={14} color="#555" />
-              <Text style={{ fontSize: 12, color: "#444" }}>Apple</Text>
+              <MaterialCommunityIcons name="apple" size={14} color={colors.icon} />
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>Apple</Text>
             </View>
           )}
         </View>

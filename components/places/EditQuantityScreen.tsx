@@ -1,4 +1,5 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
@@ -41,6 +42,7 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
     updatedAt?: string;
   }>();
   const { state } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
+  const colors = useThemeColors();
 
   const [total, setTotal] = useState(quantity ?? "1");
   const [available, setAvailable] = useState(Number(availableQuantity ?? quantity ?? 0));
@@ -146,7 +148,7 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
         }}
       />
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ color: "grey", fontSize: 13, marginBottom: 4 }}>Total Quantity</Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 4 }}>Total Quantity</Text>
         <TouchableOpacity
           onPress={openTotalPicker}
           disabled={saving}
@@ -154,7 +156,7 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            borderColor: "#ccc",
+            borderColor: colors.border,
             borderWidth: 1,
             borderRadius: 8,
             paddingHorizontal: 12,
@@ -162,15 +164,19 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
             marginBottom: 16,
           }}
         >
-          <Text style={{ fontSize: 16 }}>{total}</Text>
-          {saving ? <ActivityIndicator /> : <MaterialCommunityIcons name="chevron-down" size={18} color="#555" />}
+          <Text style={{ fontSize: 16, color: colors.text }}>{total}</Text>
+          {saving ? (
+            <ActivityIndicator />
+          ) : (
+            <MaterialCommunityIcons name="chevron-down" size={18} color={colors.icon} />
+          )}
         </TouchableOpacity>
 
-        <Text style={{ fontSize: 14, marginBottom: 16 }}>
-          Available: <Text style={{ fontWeight: "600" }}>{available}</Text>
+        <Text style={{ fontSize: 14, marginBottom: 16, color: colors.text }}>
+          Available: <Text style={{ fontWeight: "600", color: colors.text }}>{available}</Text>
         </Text>
 
-        <Text style={{ color: "grey", fontSize: 13, marginBottom: 4 }}>Check Out</Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 4 }}>Check Out</Text>
         <View style={{ marginBottom: 20 }}>
           <TouchableOpacity
             onPress={openCheckoutPicker}
@@ -179,7 +185,7 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
-              borderColor: "#ccc",
+              borderColor: colors.border,
               borderWidth: 1,
               borderRadius: 8,
               paddingHorizontal: 12,
@@ -187,16 +193,16 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
               opacity: available <= 0 ? 0.5 : 1,
             }}
           >
-            <Text style={{ fontSize: 16, color: available <= 0 ? "grey" : "#000" }}>
+            <Text style={{ fontSize: 16, color: available <= 0 ? colors.textSecondary : colors.text }}>
               {available <= 0 ? "None available" : "Select quantity"}
             </Text>
-            <MaterialCommunityIcons name="chevron-down" size={18} color="#555" />
+            <MaterialCommunityIcons name="chevron-down" size={18} color={colors.icon} />
           </TouchableOpacity>
         </View>
 
-        <Text style={{ color: "grey", fontSize: 13, marginBottom: 4 }}>Checked Out</Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 4 }}>Checked Out</Text>
         {checkoutList.length === 0 ? (
-          <Text style={{ color: "grey", fontSize: 14 }}>Nothing checked out.</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 14 }}>Nothing checked out.</Text>
         ) : (
           <FlatList
             data={checkoutList}
@@ -211,15 +217,15 @@ export default function EditQuantityScreen({ basePath }: EditQuantityScreenProps
                     justifyContent: "space-between",
                     paddingVertical: 10,
                     borderBottomWidth: 1,
-                    borderBottomColor: "#eee",
+                    borderBottomColor: colors.border,
                   }}
                 >
-                  <Text style={{ fontSize: 15 }}>
-                    @{entry.username} <Text style={{ color: "grey" }}>x{entry.quantity}</Text>
+                  <Text style={{ fontSize: 15, color: colors.text }}>
+                    @{entry.username} <Text style={{ color: colors.textSecondary }}>x{entry.quantity}</Text>
                   </Text>
                   {canReturn && (
                     <TouchableOpacity onPress={() => handleReturn(entry)} hitSlop={8}>
-                      <Text style={{ color: "#2563EB", fontWeight: "600" }}>Return</Text>
+                      <Text style={{ color: colors.tint, fontWeight: "600" }}>Return</Text>
                     </TouchableOpacity>
                   )}
                 </View>
