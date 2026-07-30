@@ -1,29 +1,24 @@
-import { AuthStyles } from "@/styles/auth.styles";
+import { AuthButton } from "@/components/AuthButton";
+import { AuthScreenContainer } from "@/components/AuthScreenContainer";
+import { AuthColors, AuthStyles } from "@/styles/auth.styles";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 const VerifiedEmailPage = () => {
   const router = useRouter();
 
   return (
-    <View style={AuthStyles.screen}>
-      <View style={AuthStyles.container}>
-        <View style={AuthStyles.content}>
-          <Text style={AuthStyles.title}>Email Verified</Text>
-          <Text style={AuthStyles.subtitle}>Your email address was successfully verified.</Text>
-
-          <Pressable
-            style={{ ...AuthStyles.button, flex: 1 }}
-            onPress={() => {
-              router.push("./LoginPage");
-            }}
-          >
-            <Text style={AuthStyles.buttonText}>Log In</Text>
-          </Pressable>
-        </View>
+    <AuthScreenContainer>
+      <View style={AuthStyles.iconBadge}>
+        <MaterialCommunityIcons name="check-decagram-outline" size={32} color={AuthColors.primary} />
       </View>
-    </View>
+      <Text style={AuthStyles.title}>Email Verified</Text>
+      <Text style={AuthStyles.subtitle}>Your email address was successfully verified.</Text>
+
+      <AuthButton title="Log In" onPress={() => router.push("./LoginPage")} />
+    </AuthScreenContainer>
   );
 };
 

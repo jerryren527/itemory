@@ -1,17 +1,30 @@
 // auth.styles.ts
 import { StyleSheet } from "react-native";
 
-const COLORS = {
+export const AuthColors = {
   background: "#FFFFFF",
+  surface: "#F3F4F6", // gray-100, filled input background
+  surfaceFocused: "#EFF6FF", // blue-50
   primary: "#2563EB", // blue-600
+  primaryPressed: "#1D4ED8", // blue-700
+  primaryDisabled: "#93C5FD", // blue-300
   primaryText: "#FFFFFF",
+  secondarySurface: "#EFF6FF", // blue-50
   text: "#111827", // gray-900
   mutedText: "#6B7280", // gray-500
+  placeholder: "#9CA3AF", // gray-400
+  icon: "#9CA3AF",
+  iconFocused: "#2563EB",
   border: "#E5E7EB", // gray-200
-  error: "#DC2626",
+  borderFocused: "#2563EB",
+  divider: "#E5E7EB",
+  error: "#DC2626", // red-600
+  errorBackground: "#FEF2F2", // red-50
+  errorBorder: "#FECACA", // red-200
+  backButtonSurface: "rgba(17, 24, 39, 0.05)",
 };
 
-const SPACING = {
+export const AuthSpacing = {
   xs: 4,
   sm: 8,
   md: 16,
@@ -22,21 +35,31 @@ const SPACING = {
 const FONT_SIZES = {
   title: 28,
   subtitle: 16,
-  body: 14,
+  body: 15,
   button: 16,
+  label: 13,
 };
 
 const MAX_CONTENT_WIDTH = 420;
+const CONTROL_HEIGHT = 52;
+const RADIUS = 14;
 
 export const AuthStyles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: AuthColors.background,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: AuthSpacing.lg,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   container: {
     flex: 1,
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: AuthSpacing.lg,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -46,75 +69,209 @@ export const AuthStyles = StyleSheet.create({
     maxWidth: MAX_CONTENT_WIDTH,
   },
 
+  backButton: {
+    position: "absolute",
+    left: AuthSpacing.md,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: AuthColors.backButtonSurface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  iconBadge: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: AuthColors.secondarySurface,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    marginBottom: AuthSpacing.lg,
+  },
+
+  logoBadge: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    alignSelf: "center",
+    marginBottom: AuthSpacing.lg,
+  },
+
   title: {
     fontSize: FONT_SIZES.title,
     fontWeight: "700",
-    color: COLORS.text,
+    color: AuthColors.text,
     textAlign: "center",
-    marginBottom: SPACING.sm,
+    marginBottom: AuthSpacing.sm,
+    letterSpacing: -0.3,
   },
 
   subtitle: {
     fontSize: FONT_SIZES.subtitle,
-    color: COLORS.mutedText,
+    lineHeight: 22,
+    color: AuthColors.mutedText,
     textAlign: "center",
-    marginBottom: SPACING.xl,
+    marginBottom: AuthSpacing.xl,
+  },
+
+  fieldWrapper: {
+    marginBottom: AuthSpacing.md,
+  },
+
+  fieldLabel: {
+    fontSize: FONT_SIZES.label,
+    fontWeight: "600",
+    color: AuthColors.mutedText,
+    marginBottom: AuthSpacing.xs,
+    marginLeft: 2,
+  },
+
+  inputShell: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: CONTROL_HEIGHT,
+    backgroundColor: AuthColors.surface,
+    borderRadius: RADIUS,
+    borderWidth: 1.5,
+    borderColor: "transparent",
+    paddingHorizontal: AuthSpacing.md,
+  },
+
+  inputShellFocused: {
+    backgroundColor: AuthColors.surfaceFocused,
+    borderColor: AuthColors.borderFocused,
+  },
+
+  inputShellError: {
+    borderColor: AuthColors.error,
+  },
+
+  inputIcon: {
+    marginRight: AuthSpacing.sm,
   },
 
   input: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 8,
-    paddingHorizontal: SPACING.md,
+    flex: 1,
+    height: "100%",
     fontSize: FONT_SIZES.body,
-    marginBottom: SPACING.md,
+    color: AuthColors.text,
   },
 
-  inputWithShowHide: {
-    display: "flex",
+  inputTrailingIcon: {
+    padding: AuthSpacing.xs,
+    marginLeft: AuthSpacing.xs,
+  },
+
+  fieldErrorText: {
+    fontSize: 12,
+    color: AuthColors.error,
+    marginTop: AuthSpacing.xs,
+    marginLeft: 2,
+  },
+
+  errorBanner: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    height: 48,
+    backgroundColor: AuthColors.errorBackground,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 8,
-    paddingHorizontal: SPACING.md,
-    fontSize: FONT_SIZES.body,
-    marginBottom: SPACING.md,
+    borderColor: AuthColors.errorBorder,
+    borderRadius: RADIUS - 4,
+    paddingVertical: AuthSpacing.sm,
+    paddingHorizontal: AuthSpacing.md,
+    marginBottom: AuthSpacing.md,
+  },
+
+  errorBannerIcon: {
+    marginRight: AuthSpacing.sm,
+  },
+
+  errorBannerText: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 18,
+    color: AuthColors.error,
   },
 
   button: {
-    height: 48,
-    borderRadius: 8,
-    backgroundColor: COLORS.primary,
+    height: CONTROL_HEIGHT,
+    borderRadius: RADIUS,
+    backgroundColor: AuthColors.primary,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: SPACING.sm,
+    flexDirection: "row",
+  },
+
+  buttonPressed: {
+    backgroundColor: AuthColors.primaryPressed,
+  },
+
+  buttonDisabled: {
+    backgroundColor: AuthColors.primaryDisabled,
+  },
+
+  buttonSecondary: {
+    backgroundColor: AuthColors.secondarySurface,
+  },
+
+  buttonSecondaryPressed: {
+    backgroundColor: "#DBEAFE", // blue-100
   },
 
   buttonText: {
-    color: COLORS.primaryText,
+    color: AuthColors.primaryText,
     fontSize: FONT_SIZES.button,
     fontWeight: "600",
   },
 
+  buttonTextSecondary: {
+    color: AuthColors.primary,
+  },
+
+  buttonRow: {
+    flexDirection: "row",
+    gap: AuthSpacing.sm,
+  },
+
   link: {
-    marginTop: SPACING.lg,
+    marginTop: AuthSpacing.lg,
     alignSelf: "center",
   },
 
   linkText: {
-    color: COLORS.primary,
+    color: AuthColors.mutedText,
     fontSize: FONT_SIZES.body,
-    fontWeight: "500",
   },
 
-  errorText: {
-    color: COLORS.error,
-    fontSize: FONT_SIZES.body,
-    marginBottom: SPACING.sm,
+  linkTextEmphasis: {
+    color: AuthColors.primary,
+    fontWeight: "600",
+  },
+
+  dividerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: AuthSpacing.lg,
+  },
+
+  dividerLine: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: AuthColors.divider,
+  },
+
+  dividerText: {
+    marginHorizontal: AuthSpacing.md,
+    fontSize: 13,
+    color: AuthColors.mutedText,
+  },
+
+  socialButtonsGroup: {
+    width: "100%",
+    alignItems: "center",
+    gap: AuthSpacing.sm,
   },
 
   formRow: {
