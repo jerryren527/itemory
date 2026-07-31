@@ -1,0 +1,60 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "version": "1.0",
+    "release": {
+      "automaticRelease": true
+    },
+    "categories": ["PRODUCTIVITY", "LIFESTYLE"],
+    "info": {
+      "en-US": {
+        "title": "Itemory",
+        "subtitle": "Home inventory, room by room",
+        "promoText": "Organize everything you own, room by room.",
+        "description": "Itemory is a home inventory app that helps you keep track of everything you own — where it is, and what you have.\n\n• Organize belongings by home, room, and container\n• Attach a photo to any item\n• Search your entire inventory instantly\n• Check items out and back in — track what's currently borrowed or in use\n• Star the items you reference most\n• Share a home with other household members so everyone stays in sync\n• Sign in with Apple, Google, or email\n• Full dark mode support",
+        "keywords": [
+          "home inventory",
+          "organize",
+          "belongings",
+          "moving",
+          "packing",
+          "household",
+          "catalog",
+          "storage",
+          "declutter"
+        ],
+        "supportUrl": "https://api-production-a0714.up.railway.app/support/",
+        "privacyPolicyUrl": "https://api-production-a0714.up.railway.app/privacy/"
+      }
+    },
+    "advisory": {
+      "ageRatingOverride": "NONE",
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gambling": false,
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "kidsAgeBand": null,
+      "koreaAgeRatingOverride": "NONE",
+      "lootBox": false,
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "unrestrictedWebAccess": false,
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "advertising": false,
+      "ageAssurance": false,
+      "ageRatingOverrideV2": "NONE",
+      "developerAgeRatingInfoUrl": null,
+      "gunsOrOtherWeapons": "NONE",
+      "healthOrWellnessTopics": false,
+      "messagingAndChat": false,
+      "parentalControls": false,
+      "userGeneratedContent": false
+    }
+  }
+}
