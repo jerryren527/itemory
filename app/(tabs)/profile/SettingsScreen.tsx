@@ -215,6 +215,15 @@ const SettingsScreen = () => {
         />
       </SettingsSection>
 
+      <SettingsSection>
+        <SettingsRow
+          icon="account-remove-outline"
+          label="Delete Account"
+          destructive
+          onPress={() => pushModal("/(tabs)/profile/DeleteAccountScreen")}
+        />
+      </SettingsSection>
+
       <SettingsSection title="Linked Accounts">
         <SettingsRow
           icon="google"

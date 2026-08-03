@@ -15,6 +15,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="index" options={{ title: "Profile" }} />
       <Stack.Screen name="SettingsScreen" options={{ title: "Account & Security" }} />
       <Stack.Screen name="ChangePasswordScreen" options={MODAL_SCREEN_OPTIONS} />
+      <Stack.Screen name="DeleteAccountScreen" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="edit-text" options={MODAL_SCREEN_OPTIONS} />
     </Stack>
   );
