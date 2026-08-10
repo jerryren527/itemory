@@ -117,6 +117,24 @@ export default function Index() {
     ]);
   };
 
+  const handleLeave = (home: HomeRowItem) => {
+    Alert.alert("Leave Home", `Leave "${home.name}"? You'll lose access to everything in it.`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Leave",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await api.post(`/app/home/${home.id}/leave`, {}, authHeaders);
+            await loadHomes();
+          } catch (err) {
+            showError(err, "Could not leave this home.");
+          }
+        },
+      },
+    ]);
+  };
+
   const openRename = (home: HomeRowItem) => {
     setPendingTextCallback(async (value) => {
       try {
@@ -190,6 +208,8 @@ export default function Index() {
     if (!home.is_primary) actions.push({ key: "setPrimary", label: "Set as Primary", icon: "star-outline" });
     if (home.is_creator) {
       actions.push({ key: "delete", label: "Delete", icon: "delete-outline", destructive: true });
+    } else {
+      actions.push({ key: "leave", label: "Leave", icon: "exit-to-app", destructive: true });
     }
     return actions;
   };
@@ -217,6 +237,7 @@ export default function Index() {
     else if (action === "rename") openRename(home);
     else if (action === "address") openEditAddress(home);
     else if (action === "delete") handleDelete(home);
+    else if (action === "leave") handleLeave(home);
     else if (action === "setPrimary") handleSetPrimary(home);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingHomeAction]);
