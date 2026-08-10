@@ -11,7 +11,11 @@ type HeaderIconButtonProps = {
 export default function HeaderIconButton({ onPress, icon = "plus", color }: HeaderIconButtonProps) {
   const colors = useThemeColors();
   return (
-    <TouchableOpacity onPress={onPress} hitSlop={12} style={{ padding: 8 }}>
+    <TouchableOpacity
+      onPress={onPress}
+      hitSlop={12}
+      style={{ padding: 8, justifyContent: "center", alignItems: "center" }}
+    >
       <MaterialCommunityIcons name={icon} size={24} color={color ?? colors.tint} />
     </TouchableOpacity>
   );

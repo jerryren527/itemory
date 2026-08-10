@@ -25,6 +25,7 @@ export default function PlacesLayout() {
       <Stack.Screen name="create-node" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="manage-access" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="edit-quantity" options={MODAL_SCREEN_OPTIONS} />
+      <Stack.Screen name="move-item" options={MODAL_SCREEN_OPTIONS} />
     </Stack>
   );
 }

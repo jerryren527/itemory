@@ -48,6 +48,9 @@ type NodeDetails = {
   level?: number | null;
   is_starred?: boolean;
   updated_at?: string;
+  location?: string;
+  room_id?: number | null;
+  container_id?: number | null;
 };
 
 type NodeResponse = {
@@ -211,6 +214,19 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
         keyboardType: config.keyboardType,
         autoCapitalize: "sentences",
         showClear: field === "comment" || field === "description" ? "true" : "false",
+      },
+    });
+  };
+
+  const openMoveModal = (item: NodeDetails) => {
+    pushModal({
+      pathname: `${basePath}/move-item` as any,
+      params: {
+        itemId: String(nodeId),
+        itemName: item.name,
+        roomId: item.room_id != null ? String(item.room_id) : "",
+        containerId: item.container_id != null ? String(item.container_id) : "",
+        expectedUpdatedAt: item.updated_at ?? "",
       },
     });
   };
@@ -528,6 +544,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             )}
           </TouchableOpacity>
 
+          <PressableDetailRow label="Location" value={item.location || "—"} onPress={() => openMoveModal(item)} />
           <PressableDetailRow
             label="Description"
             value={item.description || "—"}
