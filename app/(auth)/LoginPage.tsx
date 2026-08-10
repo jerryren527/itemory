@@ -5,16 +5,18 @@ import { AuthScreenContainer } from "@/components/AuthScreenContainer";
 import { AuthTextField } from "@/components/AuthTextField";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
+import useAppleSignIn from "@/domain/auth/useAppleSignIn";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
 import api from "@/interceptors/axios";
 import { useAuthTheme } from "@/styles/auth.styles";
 import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import axios from "axios";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Text, TextInput } from "react-native";
+import { Platform, Text, TextInput, View } from "react-native";
 
 type LoginFormType = {
   identifier: string;
@@ -33,6 +35,7 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
   const { handleGoogleSignIn } = useGoogleSignIn();
+  const { handleAppleSignIn } = useAppleSignIn();
   const [loading, setLoading] = useState<boolean>(false);
   const passwordRef = useRef<TextInput>(null);
 
@@ -106,6 +109,35 @@ const LoginPage = () => {
     }
   };
 
+  const onPressApple = async () => {
+    try {
+      setErrorMessage(null);
+      await handleAppleSignIn();
+    } catch (err: any) {
+      if (err?.code === "ERR_REQUEST_CANCELED") {
+        // User dismissed the Apple sheet — no message needed
+        return;
+      }
+      if (err?.code === "ERR_REQUEST_FAILED" || err?.code === "ERR_REQUEST_UNKNOWN") {
+        console.log("🚀 ~ LoginPage.tsx ~ onPressApple ~ apple auth failed:", err);
+        setErrorMessage("Apple Sign In is unavailable. Please try again.");
+        return;
+      }
+      if (err?.isAxiosError) {
+        console.log("🚀 ~ LoginPage.tsx ~ onPressApple ~ network/backend error:", err);
+        setErrorMessage("Please check your internet connection.");
+        return;
+      }
+      // SecureStore or unknown error
+      console.log("🚀 ~ LoginPage.tsx ~ onPressApple ~ unexpected error:", {
+        code: err?.code,
+        message: err?.message,
+        name: err?.constructor?.name,
+      });
+      setErrorMessage("Something went wrong. Please try again.");
+    }
+  };
+
   return (
     <AuthScreenContainer onBack={() => router.replace("/")}>
       <Text style={AuthStyles.title}>Log In</Text>
@@ -156,12 +188,24 @@ const LoginPage = () => {
 
       <AuthDivider />
 
-      <GoogleSigninButton
-        size={GoogleSigninButton.Size.Wide}
-        color={GoogleSigninButton.Color.Dark}
-        onPress={handleGoogleSignIn}
-        disabled={loading}
-      />
+      <View style={AuthStyles.socialButtonsGroup}>
+        <GoogleSigninButton
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={handleGoogleSignIn}
+          disabled={loading}
+        />
+
+        {Platform.OS === "ios" && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={5}
+            style={{ width: 192, height: 44 }}
+            onPress={onPressApple}
+          />
+        )}
+      </View>
 
       <Text style={AuthStyles.link}>
         <Text style={AuthStyles.linkText}>Don&apos;t have an account? </Text>
