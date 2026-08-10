@@ -15,7 +15,7 @@ import { ActivityIndicator, Alert, FlatList, Keyboard, Text, View } from "react-
 
 type SearchScope = "folder" | "everywhere";
 
-type SearchResult = PlaceRowItem & { home_name?: string };
+type SearchResult = PlaceRowItem & { home_name?: string; path?: string };
 
 type PendingAction = { item: SearchResult; action: string };
 
@@ -226,7 +226,7 @@ export default function SearchScreen({ basePath }: SearchScreenProps) {
           <PlaceRow
             item={item}
             onPress={handleResultPress}
-            subtitle={scope === "everywhere" ? item.home_name : undefined}
+            subtitle={scope === "everywhere" ? item.path || item.home_name : undefined}
             onMenuPress={openActionSheet}
           />
         )}
