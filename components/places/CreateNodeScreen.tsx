@@ -11,6 +11,7 @@ import { setPendingOptionCallback } from "@/utils/optionSelectionBridge";
 import { setPendingPhotoCallback } from "@/utils/photoSelectionBridge";
 import { parseTags } from "@/utils/tags";
 import { setPendingTagsCallback } from "@/utils/tagsSelectionBridge";
+import { setPendingTextCallback } from "@/utils/textSelectionBridge";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
@@ -84,6 +85,50 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
   const handlePickTags = () => {
     setPendingTagsCallback(set("tags"));
     pushModal({ pathname: `${basePath}/pick-tags` as any, params: { tags: fields.tags, title: "Tags" } });
+  };
+
+  const handleEditDescription = () => {
+    setPendingTextCallback(set("description"));
+    pushModal({
+      pathname: `${basePath}/edit-text` as any,
+      params: {
+        title: "Edit Description",
+        placeholder: "Description",
+        initialValue: fields.description,
+        submitLabel: "Save",
+        multiline: "true",
+        showClear: "true",
+      },
+    });
+  };
+
+  const handleEditQuantity = () => {
+    setPendingTextCallback(set("quantity"));
+    pushModal({
+      pathname: `${basePath}/edit-text` as any,
+      params: {
+        title: "Edit Quantity",
+        placeholder: "Quantity",
+        initialValue: fields.quantity,
+        submitLabel: "Save",
+        keyboardType: "number-pad",
+      },
+    });
+  };
+
+  const handleEditComment = () => {
+    setPendingTextCallback(set("comment"));
+    pushModal({
+      pathname: `${basePath}/edit-text` as any,
+      params: {
+        title: "Edit Comment",
+        placeholder: "Comment",
+        initialValue: fields.comment,
+        submitLabel: "Save",
+        multiline: "true",
+        showClear: "true",
+      },
+    });
   };
 
   const handleSubmit = async () => {
@@ -165,7 +210,10 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
         keyboardVerticalOffset={headerHeight + 50}
         style={{ flex: 1 }}
       >
-        <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: kind === "item" ? 48 : 16 }}
+          keyboardShouldPersistTaps="handled"
+        >
           {errorMessage && <Text style={{ color: colors.destructive }}>{errorMessage}</Text>}
 
           <TextInput
@@ -178,26 +226,28 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
             style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
           />
 
-          <TextInput
-            value={fields.description}
-            onChangeText={set("description")}
-            placeholder="Description (optional)"
-            placeholderTextColor={colors.textSecondary}
-            returnKeyType="done"
-            style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
-          />
+          {kind === "item" ? (
+            <TouchableOpacity onPress={handleEditDescription} style={[inputStyle, { borderColor: colors.border }]}>
+              <Text style={{ fontSize: 16, color: fields.description ? colors.text : colors.textSecondary }}>
+                {fields.description || "Description (optional)"}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TextInput
+              value={fields.description}
+              onChangeText={set("description")}
+              placeholder="Description (optional)"
+              placeholderTextColor={colors.textSecondary}
+              returnKeyType="done"
+              style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
+            />
+          )}
 
           {kind === "item" && (
             <>
-              <TextInput
-                value={fields.quantity}
-                onChangeText={set("quantity")}
-                placeholder="Quantity"
-                placeholderTextColor={colors.textSecondary}
-                keyboardType="number-pad"
-                returnKeyType="done"
-                style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
-              />
+              <TouchableOpacity onPress={handleEditQuantity} style={[inputStyle, { borderColor: colors.border }]}>
+                <Text style={{ fontSize: 16, color: colors.text }}>{fields.quantity || "Quantity"}</Text>
+              </TouchableOpacity>
 
               <TouchableOpacity onPress={handlePickCategory} style={[inputStyle, { borderColor: colors.border }]}>
                 <Text style={{ fontSize: 16, color: categoryLabel ? colors.text : colors.textSecondary }}>
@@ -243,14 +293,11 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
                 )}
               </TouchableOpacity>
 
-              <TextInput
-                value={fields.comment}
-                onChangeText={set("comment")}
-                placeholder="Comment (optional)"
-                placeholderTextColor={colors.textSecondary}
-                returnKeyType="done"
-                style={[inputStyle, { borderColor: colors.border, color: colors.text }]}
-              />
+              <TouchableOpacity onPress={handleEditComment} style={[inputStyle, { borderColor: colors.border }]}>
+                <Text style={{ fontSize: 16, color: fields.comment ? colors.text : colors.textSecondary }}>
+                  {fields.comment || "Comment (optional)"}
+                </Text>
+              </TouchableOpacity>
             </>
           )}
 
