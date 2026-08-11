@@ -87,7 +87,7 @@ export default function PickDateScreen() {
       <Stack.Screen
         options={{
           title: title || "Select Date",
-          headerLeft: () => <HeaderTextButton title="Clear" color={colors.textSecondary} onPress={() => finish("")} />,
+          headerLeft: () => <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />,
           headerRight: () => (
             <HeaderTextButton title="Save" bold onPress={() => finish(formatDate(year, month, day))} />
           ),
@@ -118,6 +118,13 @@ export default function PickDateScreen() {
             onSelect={selectYear}
           />
         </View>
+
+        <TouchableOpacity
+          onPress={() => finish("")}
+          style={{ marginTop: 24, alignItems: "center", paddingVertical: 10 }}
+        >
+          <Text style={{ color: colors.destructive, fontSize: 16, fontWeight: "600" }}>Clear</Text>
+        </TouchableOpacity>
       </View>
     </>
   );

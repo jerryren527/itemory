@@ -4,7 +4,7 @@ import { backModal } from "@/utils/modalNav";
 import { consumePendingTextCallback } from "@/utils/textSelectionBridge";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { KeyboardTypeOptions, TextInput, View } from "react-native";
+import { KeyboardTypeOptions, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function EditTextScreen() {
   const params = useLocalSearchParams<{
@@ -35,12 +35,7 @@ export default function EditTextScreen() {
       <Stack.Screen
         options={{
           title: params.title || "Edit",
-          headerLeft: () =>
-            showClear ? (
-              <HeaderTextButton title="Clear" color={colors.textSecondary} onPress={() => finish("")} />
-            ) : (
-              <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />
-            ),
+          headerLeft: () => <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />,
           headerRight: () => (
             <HeaderTextButton title={params.submitLabel || "Save"} bold onPress={() => finish(value)} />
           ),
@@ -69,6 +64,14 @@ export default function EditTextScreen() {
             color: colors.text,
           }}
         />
+        {showClear && (
+          <TouchableOpacity
+            onPress={() => finish("")}
+            style={{ marginTop: 16, alignItems: "center", paddingVertical: 10 }}
+          >
+            <Text style={{ color: colors.destructive, fontSize: 16, fontWeight: "600" }}>Clear</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </>
   );

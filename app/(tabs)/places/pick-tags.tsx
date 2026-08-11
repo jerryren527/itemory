@@ -58,7 +58,7 @@ export default function PickTagsScreen() {
       <Stack.Screen
         options={{
           title: title || "Tags",
-          headerLeft: () => <HeaderTextButton title="Clear" color={colors.textSecondary} onPress={() => finish("")} />,
+          headerLeft: () => <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />,
           headerRight: () => <HeaderTextButton title="Save" bold onPress={handleSave} />,
         }}
       />
@@ -111,6 +111,13 @@ export default function PickTagsScreen() {
               style={{ flexGrow: 1, minWidth: 100, fontSize: 16, paddingVertical: 6, color: colors.text }}
             />
           </View>
+
+          <TouchableOpacity
+            onPress={() => finish("")}
+            style={{ marginTop: 16, alignItems: "center", paddingVertical: 10 }}
+          >
+            <Text style={{ color: colors.destructive, fontSize: 16, fontWeight: "600" }}>Clear</Text>
+          </TouchableOpacity>
         </KeyboardAvoidingView>
       </Pressable>
     </>
