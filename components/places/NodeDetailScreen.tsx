@@ -345,7 +345,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   };
 
   const confirmDelete = (target: PlaceRowItem, onSuccess: () => void) => {
-    Alert.alert("Delete", `Delete "${target.name}"? This cannot be undone.`, [
+    Alert.alert("Delete", `Delete "${target.name}"? The home owner can recover it from Trash.`, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",

@@ -17,6 +17,9 @@ export default function ProfileLayout() {
       <Stack.Screen name="ChangePasswordScreen" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="DeleteAccountScreen" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="edit-text" options={MODAL_SCREEN_OPTIONS} />
+      <Stack.Screen name="action-sheet" options={MODAL_SCREEN_OPTIONS} />
+      <Stack.Screen name="pick-option" options={MODAL_SCREEN_OPTIONS} />
+      <Stack.Screen name="trash" options={MODAL_SCREEN_OPTIONS} />
     </Stack>
   );
 }

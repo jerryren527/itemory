@@ -1,21 +1,28 @@
+import { HomeRowItem } from "@/components/places/HomeRow";
 import ProfileHeaderCard from "@/components/profile/ProfileHeaderCard";
 import { SettingsRow, SettingsSection } from "@/components/profile/SettingsSection";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import api from "@/interceptors/axios";
+import { setPendingOptionCallback } from "@/utils/optionSelectionBridge";
+import { pushModal } from "@/utils/modalNav";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import Constants from "expo-constants";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useContext, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { Alert, ScrollView } from "react-native";
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
   const [signingOut, setSigningOut] = useState(false);
+  const [loadingTrash, setLoadingTrash] = useState(false);
+  const [pendingTrashHomeId, setPendingTrashHomeId] = useState<string | null>(null);
   const colors = useThemeColors();
+
+  const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
   const accountSubtitle = [
     state.capabilities.hasPassword && "Password",
@@ -50,6 +57,46 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const openTrash = async () => {
+    if (loadingTrash) return;
+    setLoadingTrash(true);
+    try {
+      const res = await api.get("/app/homes", authHeaders);
+      const ownedHomes = (res.data.homes as HomeRowItem[]).filter((h) => h.is_creator);
+
+      if (ownedHomes.length === 0) {
+        Alert.alert("No Homes", "You don't own any homes, so there's no trash to manage.");
+      } else if (ownedHomes.length === 1) {
+        pushModal({ pathname: "/(tabs)/profile/trash", params: { homeId: String(ownedHomes[0].id) } });
+      } else {
+        setPendingOptionCallback((homeId) => setPendingTrashHomeId(homeId));
+        pushModal({
+          pathname: "/(tabs)/profile/pick-option",
+          params: {
+            title: "Choose a Home",
+            options: JSON.stringify(ownedHomes.map((h) => ({ label: h.name, value: String(h.id) }))),
+          },
+        });
+      }
+    } catch {
+      Alert.alert("Error", "Could not load your homes.");
+    } finally {
+      setLoadingTrash(false);
+    }
+  };
+
+  // Mirrors the deferred-action pattern used by the Places tab: pushing a
+  // follow-up modal synchronously from the picker's callback would race with
+  // pick-option's own router.back() — apply it once this screen regains focus.
+  useFocusEffect(
+    useCallback(() => {
+      if (!pendingTrashHomeId) return;
+      const homeId = pendingTrashHomeId;
+      setPendingTrashHomeId(null);
+      pushModal({ pathname: "/(tabs)/profile/trash", params: { homeId } });
+    }, [pendingTrashHomeId]),
+  );
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.backgroundSecondary }} contentContainerStyle={{ paddingBottom: 40 }}>
       <ProfileHeaderCard
@@ -66,6 +113,16 @@ export default function ProfileScreen() {
           label="Account & Security"
           subtitle={accountSubtitle || "Manage your login methods"}
           onPress={() => router.push("/(tabs)/profile/SettingsScreen")}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="Places">
+        <SettingsRow
+          icon="trash-can-outline"
+          label="Trash"
+          subtitle="Recover or permanently delete rooms, containers, and items"
+          onPress={openTrash}
+          loading={loadingTrash}
         />
       </SettingsSection>
 
