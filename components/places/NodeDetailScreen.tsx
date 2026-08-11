@@ -49,8 +49,12 @@ type NodeDetails = {
   is_starred?: boolean;
   updated_at?: string;
   location?: string;
+  home_id?: number | null;
   room_id?: number | null;
+  /** An item's current parent container (item responses only). */
   container_id?: number | null;
+  /** A container's current parent container, if nested (container responses only). */
+  parent_container_id?: number | null;
 };
 
 type NodeResponse = {
@@ -218,15 +222,18 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
     });
   };
 
-  const openMoveModal = (item: NodeDetails) => {
+  const openMoveModal = () => {
+    const node = data!.node_details;
+    const currentContainerId = nodeType === "container" ? node.parent_container_id : node.container_id;
     pushModal({
-      pathname: `${basePath}/move-item` as any,
+      pathname: `${basePath}/move-node` as any,
       params: {
-        itemId: String(nodeId),
-        itemName: item.name,
-        roomId: item.room_id != null ? String(item.room_id) : "",
-        containerId: item.container_id != null ? String(item.container_id) : "",
-        expectedUpdatedAt: item.updated_at ?? "",
+        kind: nodeType,
+        nodeId: String(nodeId),
+        roomId: node.room_id != null ? String(node.room_id) : "",
+        containerId: currentContainerId != null ? String(currentContainerId) : "",
+        homeId: node.home_id != null ? String(node.home_id) : "",
+        expectedUpdatedAt: node.updated_at ?? "",
       },
     });
   };
@@ -544,7 +551,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             )}
           </TouchableOpacity>
 
-          <PressableDetailRow label="Location" value={item.location || "—"} onPress={() => openMoveModal(item)} />
+          <PressableDetailRow label="Location" value={item.location || "—"} onPress={openMoveModal} />
           <PressableDetailRow
             label="Description"
             value={item.description || "—"}
@@ -576,10 +583,25 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
     );
   }
 
+  const canMove = nodeType === "container";
+
   return (
     <>
       <Stack.Screen
-        options={{ title, headerRight: canAdd ? () => <HeaderIconButton onPress={handleAddPress} /> : undefined }}
+        options={{
+          title,
+          headerRight:
+            canMove || canAdd
+              ? () => (
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    {canMove && (
+                      <HeaderIconButton icon="folder-move-outline" color={colors.tint} onPress={openMoveModal} />
+                    )}
+                    {canAdd && <HeaderIconButton onPress={handleAddPress} />}
+                  </View>
+                )
+              : undefined,
+        }}
       />
       <SearchBar
         mode="link"

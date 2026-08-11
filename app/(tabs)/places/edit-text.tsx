@@ -23,11 +23,16 @@ export default function EditTextScreen() {
   const multiline = params.multiline === "true";
   const showClear = params.showClear === "true";
   const autoCapitalize = (params.autoCapitalize ?? "sentences") as "none" | "sentences" | "words" | "characters";
+  const isNumberPad = params.keyboardType === "number-pad";
 
   const finish = (result: string) => {
     const callback = consumePendingTextCallback();
     callback?.(result);
     backModal();
+  };
+
+  const handleChangeText = (text: string) => {
+    setValue(isNumberPad ? text.replace(/[^0-9]/g, "") : text);
   };
 
   return (
@@ -44,7 +49,7 @@ export default function EditTextScreen() {
       <View style={{ flex: 1, padding: 16 }}>
         <TextInput
           value={value}
-          onChangeText={setValue}
+          onChangeText={handleChangeText}
           placeholder={params.placeholder}
           placeholderTextColor={colors.textSecondary}
           autoCapitalize={autoCapitalize}

@@ -21,7 +21,7 @@ export default function CheckedOutLayout() {
       <Stack.Screen name="action-sheet" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="photo" options={MODAL_SCREEN_OPTIONS} />
       <Stack.Screen name="edit-quantity" options={MODAL_SCREEN_OPTIONS} />
-      <Stack.Screen name="move-item" options={MODAL_SCREEN_OPTIONS} />
+      <Stack.Screen name="move-node" options={MODAL_SCREEN_OPTIONS} />
     </Stack>
   );
 }

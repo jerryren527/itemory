@@ -12,49 +12,78 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
 
-type HomeOption = { id: number; name: string };
+type HomeOption = { id: number; name: string; is_creator: boolean };
 
 /** A level the user has drilled into within the modal's own internal navigation stack. */
 type Level = { kind: "home" | "room" | "container"; id: number; name: string };
 
-export default function MoveItemScreen() {
-  const { itemId, itemName, roomId, containerId, expectedUpdatedAt } = useLocalSearchParams<{
-    itemId: string;
-    itemName?: string;
+export default function MoveNodeScreen() {
+  const { kind, nodeId, roomId, containerId, homeId, expectedUpdatedAt } = useLocalSearchParams<{
+    kind: "item" | "container";
+    nodeId: string;
     roomId?: string;
     containerId?: string;
+    homeId?: string;
     expectedUpdatedAt?: string;
   }>();
   const { state } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
   const colors = useThemeColors();
 
-  const [path, setPath] = useState<Level[]>([]);
   const [homes, setHomes] = useState<HomeOption[] | null>(null);
+  // The Homes picker (an empty path) is only reachable by a home's creator -
+  // a plain member's floor is the current home's room list, so their path
+  // never legitimately goes below length 1. null until the initial /app/homes
+  // fetch resolves which case applies.
+  const [path, setPath] = useState<Level[] | null>(null);
+  const [minPathLength, setMinPathLength] = useState(0);
   const [children, setChildren] = useState<PlaceRowItem[] | null>(null);
   const [loadStatus, setLoadStatus] = useState<"loading" | "ready" | "error">("loading");
   const [moving, setMoving] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${state.tokens.accessToken}` } };
 
-  const currentLevel = path[path.length - 1];
+  const currentLevel = path && path.length > 0 ? path[path.length - 1] : undefined;
   const currentRoomId = roomId ? Number(roomId) : null;
   const currentContainerId = containerId ? Number(containerId) : null;
 
   useEffect(() => {
     let cancelled = false;
+    const init = async () => {
+      try {
+        const res = await api.get("/app/homes", authHeaders);
+        if (cancelled) return;
+        const list: HomeOption[] = res.data.homes.map((h: any) => ({ id: h.id, name: h.name, is_creator: h.is_creator }));
+        setHomes(list);
+
+        const home = list.find((h) => h.id === Number(homeId));
+        const isOwner = home?.is_creator ?? false;
+        setMinPathLength(isOwner ? 0 : 1);
+        setPath(isOwner ? [] : [{ kind: "home", id: Number(homeId), name: home?.name ?? "" }]);
+      } catch {
+        if (!cancelled) setLoadStatus("error");
+      }
+    };
+    init();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (path === null) return;
+    if (!currentLevel) {
+      setLoadStatus("ready");
+      return;
+    }
+    let cancelled = false;
     const load = async () => {
       setLoadStatus((prev) => (prev === "ready" ? prev : "loading"));
       try {
-        if (!currentLevel) {
-          const res = await api.get("/app/homes", authHeaders);
-          if (cancelled) return;
-          setHomes(res.data.homes.map((h: any) => ({ id: h.id, name: h.name })));
-        } else {
-          const res = await api.get(`/app/place-node/${currentLevel.kind}/${currentLevel.id}`, authHeaders);
-          if (cancelled) return;
-          setChildren(res.data.children);
-        }
-        if (!cancelled) setLoadStatus("ready");
+        const res = await api.get(`/app/place-node/${currentLevel.kind}/${currentLevel.id}`, authHeaders);
+        if (cancelled) return;
+        setChildren(res.data.children);
+        setLoadStatus("ready");
       } catch {
         if (!cancelled) setLoadStatus("error");
       }
@@ -64,38 +93,42 @@ export default function MoveItemScreen() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLevel?.kind, currentLevel?.id]);
+  }, [path, currentLevel?.kind, currentLevel?.id]);
 
   const openHome = (home: HomeOption) => setPath([{ kind: "home", id: home.id, name: home.name }]);
 
   const openChild = (child: PlaceRowItem) => {
     if (child.type !== "room" && child.type !== "container") return;
     const level: Level = { kind: child.type, id: child.id, name: child.name };
-    setPath((prev) => [...prev, level]);
+    setPath((prev) => [...(prev ?? []), level]);
   };
 
   const goBack = () => {
-    if (path.length > 0) setPath((prev) => prev.slice(0, -1));
+    if (path && path.length > minPathLength) setPath((prev) => (prev ?? []).slice(0, -1));
     else backModal();
   };
 
   const isValidTarget =
     !!currentLevel &&
     ((currentLevel.kind === "room" && currentLevel.id !== currentRoomId) ||
-      (currentLevel.kind === "container" && currentLevel.id !== currentContainerId));
+      (currentLevel.kind === "container" && currentLevel.id !== currentContainerId)) &&
+    // A container can't be moved directly into itself. (Moving it into one
+    // of its own deeper descendants still slips past this client-side check,
+    // but the backend rejects that with an explicit error.)
+    !(kind === "container" && currentLevel.kind === "container" && currentLevel.id === Number(nodeId));
 
   const handleMove = async () => {
     if (!currentLevel || !isValidTarget) return;
     setMoving(true);
     try {
-      const payload =
-        currentLevel.kind === "room"
-          ? { room_id: currentLevel.id, expected_updated_at: expectedUpdatedAt }
-          : { container_id: currentLevel.id, expected_updated_at: expectedUpdatedAt };
-      await api.post(`/app/item/${itemId}/move`, payload, authHeaders);
+      const destinationKey =
+        currentLevel.kind === "room" ? "room_id" : kind === "container" ? "parent_container_id" : "container_id";
+      const payload = { [destinationKey]: currentLevel.id, expected_updated_at: expectedUpdatedAt };
+      const endpoint = kind === "container" ? `/app/container/${nodeId}/move` : `/app/item/${nodeId}/move`;
+      await api.post(endpoint, payload, authHeaders);
       backModal();
     } catch (err) {
-      const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Could not move this item.") : "Could not move this item.";
+      const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Could not move this.") : "Could not move this.";
       Alert.alert("Error", message);
     } finally {
       setMoving(false);
@@ -110,7 +143,7 @@ export default function MoveItemScreen() {
         options={{
           title,
           headerLeft: () =>
-            path.length > 0 ? (
+            path && path.length > minPathLength ? (
               <HeaderIconButton key="back" icon="chevron-left" color={colors.tint} onPress={goBack} />
             ) : (
               <HeaderTextButton key="cancel" title="Cancel" color={colors.textSecondary} onPress={goBack} />
