@@ -17,8 +17,17 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { Image } from "expo-image";
 import { router, Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
+
+type SortOption = "name_asc" | "name_desc" | "date_new" | "date_old";
+
+const SORT_LABELS: Record<SortOption, string> = {
+  name_asc: "Name (A to Z)",
+  name_desc: "Name (Z to A)",
+  date_new: "Date modified (New to Old)",
+  date_old: "Date modified (Old to New)",
+};
 
 type ItemField = "name" | "description" | "comment";
 
@@ -101,8 +110,29 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [photoLoadError, setPhotoLoadError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [sortOption, setSortOption] = useState<SortOption>("name_asc");
 
   const colors = useThemeColors();
+
+  const sortedChildren = useMemo(() => {
+    const children = data?.children ?? [];
+    const copy = [...children];
+    switch (sortOption) {
+      case "name_asc":
+        copy.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name_desc":
+        copy.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "date_new":
+        copy.sort((a, b) => new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime());
+        break;
+      case "date_old":
+        copy.sort((a, b) => new Date(a.updated_at ?? 0).getTime() - new Date(b.updated_at ?? 0).getTime());
+        break;
+    }
+    return copy;
+  }, [data?.children, sortOption]);
 
   useEffect(() => {
     setPhotoLoadError(null);
@@ -400,6 +430,20 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
     });
   };
 
+  const openSortMenu = () => {
+    setPendingOptionCallback((value) => setSortOption(value as SortOption));
+    pushModal({
+      pathname: `${basePath}/pick-option` as any,
+      params: {
+        title: "Sort by",
+        value: sortOption,
+        options: JSON.stringify(
+          (Object.keys(SORT_LABELS) as SortOption[]).map((key) => ({ label: SORT_LABELS[key], value: key })),
+        ),
+      },
+    });
+  };
+
   const openSelfActionSheet = () => {
     setPendingActionCallback((action) => setPendingAction({ kind: "selfAction", action }));
     const isStarred = data?.node_details?.is_starred ?? false;
@@ -613,6 +657,28 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
           })
         }
       />
+      {data.children.length > 0 && (
+        <TouchableOpacity
+          onPress={openSortMenu}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            alignSelf: "flex-start",
+            gap: 6,
+            marginHorizontal: 12,
+            marginTop: 8,
+            marginBottom: 8,
+            paddingVertical: 6,
+            paddingHorizontal: 12,
+            borderRadius: 16,
+            backgroundColor: colors.surfaceAlt,
+          }}
+        >
+          <MaterialCommunityIcons name="sort" size={16} color={colors.icon} />
+          <Text style={{ fontSize: 14, color: colors.text }}>{SORT_LABELS[sortOption]}</Text>
+        </TouchableOpacity>
+      )}
+
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
         {data.children.length === 0 ? (
           <View style={{ paddingVertical: 40, alignItems: "center" }}>
@@ -621,10 +687,11 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             </Text>
           </View>
         ) : (
-          data.children.map((child) => (
+          sortedChildren.map((child) => (
             <PlaceRow
               key={`${child.type}-${child.id}`}
               item={child}
+              showDateModified={sortOption === "date_new" || sortOption === "date_old"}
               onPress={(rowItem) =>
                 router.push({
                   pathname: `${basePath}/node/[nodeType]/[nodeId]` as any,
