@@ -1,4 +1,5 @@
 import HeaderTextButton from "@/components/HeaderTextButton";
+import HeaderIconButton from "@/components/places/HeaderIconButton";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { backModal } from "@/utils/modalNav";
 import { consumePendingTextCallback } from "@/utils/textSelectionBridge";
@@ -16,6 +17,8 @@ export default function EditTextScreen() {
     keyboardType?: string;
     autoCapitalize?: string;
     showClear?: string;
+    maxLength?: string;
+    cancelIcon?: string;
   }>();
   const [value, setValue] = useState(params.initialValue ?? "");
   const colors = useThemeColors();
@@ -40,7 +43,16 @@ export default function EditTextScreen() {
       <Stack.Screen
         options={{
           title: params.title || "Edit",
-          headerLeft: () => <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />,
+          headerLeft: () =>
+            params.cancelIcon ? (
+              <HeaderIconButton
+                icon={params.cancelIcon as any}
+                color={colors.textSecondary}
+                onPress={backModal}
+              />
+            ) : (
+              <HeaderTextButton title="Cancel" color={colors.textSecondary} onPress={backModal} />
+            ),
           headerRight: () => (
             <HeaderTextButton title={params.submitLabel || "Save"} bold onPress={() => finish(value)} />
           ),
@@ -54,6 +66,7 @@ export default function EditTextScreen() {
           placeholderTextColor={colors.textSecondary}
           autoCapitalize={autoCapitalize}
           keyboardType={params.keyboardType as KeyboardTypeOptions | undefined}
+          maxLength={params.maxLength ? Number(params.maxLength) : undefined}
           multiline={multiline}
           autoFocus
           returnKeyType={multiline ? "default" : "done"}

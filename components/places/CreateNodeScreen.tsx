@@ -112,6 +112,7 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
         initialValue: fields.quantity,
         submitLabel: "Save",
         keyboardType: "number-pad",
+        maxLength: "2",
       },
     });
   };
@@ -162,7 +163,7 @@ export default function CreateNodeScreen({ basePath }: CreateNodeScreenProps) {
             ...parentField,
             name: fields.name.trim(),
             description: fields.description.trim() || null,
-            quantity: Number(fields.quantity) || 1,
+            quantity: fields.quantity.trim() === "" ? 1 : Number(fields.quantity),
             category: fields.category || null,
             expiration_date: fields.expiration_date.trim() || null,
             comment: fields.comment.trim() || null,
