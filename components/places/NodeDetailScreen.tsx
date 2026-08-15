@@ -117,20 +117,27 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   const sortedChildren = useMemo(() => {
     const children = data?.children ?? [];
     const copy = [...children];
+    let compare: (a: PlaceRowItem, b: PlaceRowItem) => number;
     switch (sortOption) {
       case "name_asc":
-        copy.sort((a, b) => a.name.localeCompare(b.name));
+        compare = (a, b) => a.name.localeCompare(b.name);
         break;
       case "name_desc":
-        copy.sort((a, b) => b.name.localeCompare(a.name));
+        compare = (a, b) => b.name.localeCompare(a.name);
         break;
       case "date_new":
-        copy.sort((a, b) => new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime());
+        compare = (a, b) => new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime();
         break;
       case "date_old":
-        copy.sort((a, b) => new Date(a.updated_at ?? 0).getTime() - new Date(b.updated_at ?? 0).getTime());
+        compare = (a, b) => new Date(a.updated_at ?? 0).getTime() - new Date(b.updated_at ?? 0).getTime();
         break;
     }
+    copy.sort((a, b) => {
+      const aIsContainer = a.type === "container" ? 0 : 1;
+      const bIsContainer = b.type === "container" ? 0 : 1;
+      if (aIsContainer !== bIsContainer) return aIsContainer - bIsContainer;
+      return compare(a, b);
+    });
     return copy;
   }, [data?.children, sortOption]);
 
