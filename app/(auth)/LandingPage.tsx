@@ -6,7 +6,7 @@ import useAppleSignIn from "@/domain/auth/useAppleSignIn";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
 import { AuthSpacing, useAuthTheme } from "@/styles/auth.styles";
 import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
-import { HttpStatusCode } from "axios";
+import axios, { HttpStatusCode } from "axios";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -35,7 +35,14 @@ const LandingPage = () => {
       console.log("🚀 ~ LandingPage.tsx:47 ~ onPressGoogle ~ err:", err);
       if (err?.status === HttpStatusCode.Conflict) {
         setErrorMessage(`${err?.response.data.message}`);
-        return;
+      } else if (axios.isAxiosError(err)) {
+        if (err.response) {
+          setErrorMessage(err.response.data?.message ?? `Sign-in failed (${err.response.status}).`);
+        } else {
+          setErrorMessage("Could not reach the server. Check your connection and try again.");
+        }
+      } else if (err?.code) {
+        setErrorMessage(`Google sign-in failed: ${err.code}`);
       } else {
         setErrorMessage("Encountered an unknown error.");
       }
