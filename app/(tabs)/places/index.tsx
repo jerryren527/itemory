@@ -31,7 +31,6 @@ type PendingHomeAction = {
 
 export default function Index() {
   const { state } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
-  const primaryHome = state.primaryHome;
 
   const [homes, setHomes] = useState<HomeRowItem[] | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("name_asc");
@@ -189,6 +188,7 @@ export default function Index() {
         initialValue: "",
         submitLabel: "Share",
         autoCapitalize: "none",
+        cancelIcon: "chevron-left",
       },
     });
   };
@@ -205,7 +205,7 @@ export default function Index() {
     }
     if (home.is_creator) actions.push({ key: "rename", label: "Rename", icon: "pencil-outline" });
     if (home.is_creator) actions.push({ key: "address", label: "Edit Address", icon: "map-marker-outline" });
-    if (!home.is_primary) actions.push({ key: "setPrimary", label: "Set as Primary", icon: "star-outline" });
+    if (!home.is_primary) actions.push({ key: "setPrimary", label: "Set as Primary", icon: "crown-outline" });
     if (home.is_creator) {
       actions.push({ key: "delete", label: "Delete", icon: "delete-outline", destructive: true });
     } else {
@@ -270,7 +270,7 @@ export default function Index() {
 
       <SearchBar mode="link" placeholder="Search" onPress={() => router.push("/(tabs)/places/search")} />
 
-      {primaryHome === null && (
+      {homes !== null && homes.length === 0 && (
         <View style={{ padding: 16, alignItems: "center" }}>
           <Text style={{ fontSize: 16, color: colors.textSecondary, textAlign: "center" }}>
             You don&apos;t have a home yet.

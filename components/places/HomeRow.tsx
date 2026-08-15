@@ -45,7 +45,7 @@ export default function HomeRow({ item, onPress, onMenuPress, showDateModified }
         <View style={{ marginLeft: 14, flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <Text style={{ fontSize: 16, color: colors.text }}>{item.name}</Text>
-            {item.is_primary && <MaterialCommunityIcons name="star" size={16} color="#F5A623" />}
+            {item.is_primary && <MaterialCommunityIcons name="crown" size={16} color="#F5A623" />}
             {item.is_shared && (
               <MaterialCommunityIcons name="account-multiple-outline" size={16} color={colors.textSecondary} />
             )}
