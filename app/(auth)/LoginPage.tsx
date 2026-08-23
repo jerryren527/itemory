@@ -3,6 +3,7 @@ import { AuthDivider } from "@/components/AuthDivider";
 import { AuthErrorBanner } from "@/components/AuthErrorBanner";
 import { AuthScreenContainer } from "@/components/AuthScreenContainer";
 import { AuthTextField } from "@/components/AuthTextField";
+import { GOOGLE_SIGNIN_CONFIG } from "@/constants";
 import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import useAppleSignIn from "@/domain/auth/useAppleSignIn";
@@ -40,11 +41,7 @@ const LoginPage = () => {
   const passwordRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    GoogleSignin.configure({
-      iosClientId: "576724600295-1qvvi3u0t52o15eg1202mnc0phs9qejn.apps.googleusercontent.com",
-      webClientId: "576724600295-o03u09d0l2jh5osvul7f1gci8l5r20m3.apps.googleusercontent.com",
-      profileImageSize: 150,
-    });
+    GoogleSignin.configure(GOOGLE_SIGNIN_CONFIG);
   }, []);
 
   const onSubmit = async (data: LoginFormType) => {
