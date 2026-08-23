@@ -62,7 +62,8 @@
         }
       ],
       "expo-build-properties",
-      "./plugins/withModularHeaders.js"
+      "./plugins/withModularHeaders.js",
+      "./plugins/withHttp1Only.js"
     ],
     "experiments": {
       "typedRoutes": true,
