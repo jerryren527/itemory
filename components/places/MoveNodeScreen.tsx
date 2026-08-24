@@ -18,9 +18,10 @@ type HomeOption = { id: number; name: string; is_creator: boolean };
 type Level = { kind: "home" | "room" | "container"; id: number; name: string };
 
 export default function MoveNodeScreen() {
-  const { kind, nodeId, roomId, containerId, homeId, expectedUpdatedAt } = useLocalSearchParams<{
+  const { kind, nodeId, nodeName, roomId, containerId, homeId, expectedUpdatedAt } = useLocalSearchParams<{
     kind: "item" | "container";
     nodeId: string;
+    nodeName?: string;
     roomId?: string;
     containerId?: string;
     homeId?: string;
@@ -154,6 +155,22 @@ export default function MoveNodeScreen() {
           },
         }}
       />
+
+      {nodeName ? (
+        <View
+          style={{
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            backgroundColor: colors.surfaceAlt,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+          }}
+        >
+          <Text style={{ fontSize: 13, color: colors.textSecondary }}>
+            Moving <Text style={{ fontWeight: "600", color: colors.text }}>{nodeName}</Text>
+          </Text>
+        </View>
+      ) : null}
 
       {loadStatus === "loading" && (
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

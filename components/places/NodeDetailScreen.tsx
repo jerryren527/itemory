@@ -267,6 +267,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
       params: {
         kind: nodeType,
         nodeId: String(nodeId),
+        nodeName: node.name,
         roomId: node.room_id != null ? String(node.room_id) : "",
         containerId: currentContainerId != null ? String(currentContainerId) : "",
         homeId: node.home_id != null ? String(node.home_id) : "",
@@ -602,7 +603,13 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             )}
           </TouchableOpacity>
 
-          <PressableDetailRow label="Location" value={item.location || "—"} onPress={openMoveModal} />
+          <PressableDetailRow
+            label="Location"
+            value={item.location || "—"}
+            onPress={openMoveModal}
+            icon="folder-move-outline"
+            iconColor={colors.tint}
+          />
           <PressableDetailRow
             label="Description"
             value={item.description || "—"}
@@ -646,7 +653,20 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
               ? () => (
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     {canMove && (
-                      <HeaderIconButton icon="folder-move-outline" color={colors.tint} onPress={openMoveModal} />
+                      <TouchableOpacity
+                        onPress={openMoveModal}
+                        hitSlop={12}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 4,
+                          paddingHorizontal: 8,
+                          paddingVertical: 8,
+                        }}
+                      >
+                        <MaterialCommunityIcons name="folder-move-outline" size={20} color={colors.tint} />
+                        <Text style={{ color: colors.tint, fontWeight: "600", fontSize: 15 }}>Move</Text>
+                      </TouchableOpacity>
                     )}
                     {canAdd && <HeaderIconButton onPress={handleAddPress} />}
                   </View>
@@ -714,7 +734,19 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   );
 }
 
-function PressableDetailRow({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
+function PressableDetailRow({
+  label,
+  value,
+  onPress,
+  icon = "chevron-right",
+  iconColor,
+}: {
+  label: string;
+  value: string;
+  onPress: () => void;
+  icon?: keyof typeof MaterialCommunityIcons.glyphMap;
+  iconColor?: string;
+}) {
   const colors = useThemeColors();
   return (
     <TouchableOpacity
@@ -729,7 +761,7 @@ function PressableDetailRow({ label, value, onPress }: { label: string; value: s
     >
       <Text style={{ width: 100, color: colors.textSecondary, fontSize: 14 }}>{label}</Text>
       <Text style={{ flex: 1, fontSize: 14, color: colors.text }}>{value}</Text>
-      <MaterialCommunityIcons name="chevron-right" size={18} color={colors.textMuted} />
+      <MaterialCommunityIcons name={icon} size={18} color={iconColor ?? colors.textMuted} />
     </TouchableOpacity>
   );
 }
