@@ -10,6 +10,7 @@ import { KeyboardTypeOptions, Text, TextInput, TouchableOpacity, View } from "re
 export default function EditTextScreen() {
   const params = useLocalSearchParams<{
     title?: string;
+    subtitle?: string;
     placeholder?: string;
     initialValue?: string;
     submitLabel?: string;
@@ -59,6 +60,9 @@ export default function EditTextScreen() {
         }}
       />
       <View style={{ flex: 1, padding: 16 }}>
+        {params.subtitle && (
+          <Text style={{ color: colors.textSecondary, fontSize: 14, marginBottom: 12 }}>{params.subtitle}</Text>
+        )}
         <TextInput
           value={value}
           onChangeText={handleChangeText}

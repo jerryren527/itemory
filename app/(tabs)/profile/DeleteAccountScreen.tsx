@@ -11,7 +11,9 @@ import axios from "axios";
 import { Stack } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useContext, useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+
+const DELETE_CONFIRM_PHRASE = "delete my account";
 
 const DeleteAccountScreen = () => {
   const { state, dispatch } = useContext<{ state: AuthState; dispatch: React.Dispatch<any> }>(AuthContext);
@@ -19,6 +21,7 @@ const DeleteAccountScreen = () => {
   const headerHeight = useHeaderHeight();
   const [password, setPassword] = useState<string>("");
   const [hidePassword, setHidePassword] = useState<boolean>(true);
+  const [confirmText, setConfirmText] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<boolean>(false);
 
@@ -60,14 +63,12 @@ const DeleteAccountScreen = () => {
       return;
     }
 
-    Alert.alert(
-      "Delete Account",
-      "This permanently deletes your account and cannot be undone. Homes only you belong to are deleted along with everything in them; shared homes stay intact for other members.",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: handleDeleteAccount },
-      ],
-    );
+    if (confirmText.trim().toLowerCase() !== DELETE_CONFIRM_PHRASE) {
+      setErrorMessage(`Type "${DELETE_CONFIRM_PHRASE}" exactly to confirm.`);
+      return;
+    }
+
+    handleDeleteAccount();
   };
 
   return (
@@ -91,7 +92,8 @@ const DeleteAccountScreen = () => {
           <View style={bannerStyle(colors.destructiveBackground)}>
             <MaterialCommunityIcons name="alert-circle-outline" size={18} color={colors.destructive} />
             <Text style={{ color: colors.destructive, fontSize: 14, flex: 1 }}>
-              This permanently deletes your account and all of your data. This cannot be undone.
+              This permanently deletes your account and all of your data. This cannot be undone. Homes only you
+              belong to are deleted along with everything in them; shared homes stay intact for other members.
             </Text>
           </View>
 
@@ -127,6 +129,24 @@ const DeleteAccountScreen = () => {
               </View>
             </View>
           )}
+
+          <View>
+            <Text style={[labelStyle, { color: colors.textSecondary }]}>
+              Type &quot;{DELETE_CONFIRM_PHRASE}&quot; to confirm
+            </Text>
+            <View style={[fieldStyle, { borderColor: colors.border, backgroundColor: colors.surfaceAlt }]}>
+              <TextInput
+                value={confirmText}
+                onChangeText={setConfirmText}
+                placeholder={DELETE_CONFIRM_PHRASE}
+                placeholderTextColor={colors.textMuted}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="done"
+                style={{ flex: 1, fontSize: 16, color: colors.text }}
+              />
+            </View>
+          </View>
 
           {deleting && <ActivityIndicator color={colors.destructive} />}
         </ScrollView>
