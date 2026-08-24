@@ -19,11 +19,13 @@ type PlaceRowProps = {
   subtitle?: string;
   onMenuPress?: (item: PlaceRowItem) => void;
   onReturnPress?: (item: PlaceRowItem) => void;
+  /** When provided, renders a tappable filled star to unstar the item (regardless of item.is_starred). */
+  onStarPress?: (item: PlaceRowItem) => void;
   showDateModified?: boolean;
 };
 
 const ICON_BY_TYPE: Record<PlaceRowItem["type"], keyof typeof MaterialCommunityIcons.glyphMap> = {
-  room: "home-outline",
+  room: "door-open",
   container: "archive-outline",
   item: "cube-outline",
 };
@@ -34,6 +36,7 @@ export default function PlaceRow({
   subtitle,
   onMenuPress,
   onReturnPress,
+  onStarPress,
   showDateModified,
 }: PlaceRowProps) {
   const colors = useThemeColors();
@@ -60,7 +63,7 @@ export default function PlaceRow({
         <View style={{ marginLeft: 14, flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <Text style={{ fontSize: 16, color: colors.text }}>{item.name}</Text>
-            {item.is_starred && <MaterialCommunityIcons name="star" size={16} color="#F5A623" />}
+            {item.is_starred && !onStarPress && <MaterialCommunityIcons name="star" size={16} color="#F5A623" />}
           </View>
           {showDateModified && item.updated_at ? (
             <Text style={{ fontSize: 13, color: colors.textSecondary }}>
@@ -78,6 +81,12 @@ export default function PlaceRow({
       {onReturnPress && (
         <TouchableOpacity onPress={() => onReturnPress(item)} hitSlop={12} style={{ paddingHorizontal: 16 }}>
           <Text style={{ color: colors.tint, fontWeight: "600" }}>Return</Text>
+        </TouchableOpacity>
+      )}
+
+      {onStarPress && (
+        <TouchableOpacity onPress={() => onStarPress(item)} hitSlop={12} style={{ padding: 16 }}>
+          <MaterialCommunityIcons name="star" size={22} color="#F5A623" />
         </TouchableOpacity>
       )}
 

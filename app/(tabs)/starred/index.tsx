@@ -6,7 +6,7 @@ import api from "@/interceptors/axios";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useContext, useMemo, useState } from "react";
-import { FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 
 type SortOption = "name_asc" | "name_desc" | "date_new" | "date_old";
 
@@ -87,6 +87,15 @@ export default function StarredScreen() {
       pathname: "/(tabs)/starred/node/[nodeType]/[nodeId]",
       params: { nodeType: item.type, nodeId: String(item.id), name: item.name },
     });
+  };
+
+  const handleUnstar = async (item: PlaceRowItem) => {
+    try {
+      await api.post(`/app/place-node/${item.type}/${item.id}/unstar`, {}, authHeaders);
+      setItems((prev) => prev?.filter((i) => !(i.id === item.id && i.type === item.type)) ?? null);
+    } catch {
+      Alert.alert("Error", "Could not unstar this.");
+    }
   };
 
   return (
@@ -181,6 +190,7 @@ export default function StarredScreen() {
             onPress={handlePress}
             subtitle={item.home_name}
             showDateModified={sortOption === "date_new" || sortOption === "date_old"}
+            onStarPress={handleUnstar}
           />
         )}
       />
