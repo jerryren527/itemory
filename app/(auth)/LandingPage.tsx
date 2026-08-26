@@ -79,7 +79,7 @@ const LandingPage = () => {
     <AuthScreenContainer>
       <Image source={require("@/assets/images/icon.png")} style={AuthStyles.logoBadge} />
       <Text style={AuthStyles.title}>Itemory</Text>
-      <Text style={AuthStyles.subtitle}>Organize everything you own, room by room.</Text>
+      <Text style={AuthStyles.subtitle}>Organize everything you own</Text>
 
       <AuthErrorBanner message={errorMessage} />
 
