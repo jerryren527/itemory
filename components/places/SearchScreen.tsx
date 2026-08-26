@@ -226,7 +226,7 @@ export default function SearchScreen({ basePath }: SearchScreenProps) {
           <PlaceRow
             item={item}
             onPress={handleResultPress}
-            subtitle={scope === "everywhere" ? item.path || item.home_name : undefined}
+            subtitle={item.path || item.home_name}
             onMenuPress={openActionSheet}
           />
         )}
