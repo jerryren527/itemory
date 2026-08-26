@@ -98,22 +98,31 @@ export default function Index() {
     }
   };
 
+  const DELETE_CONFIRM_PHRASE = "delete this home";
+
   const handleDelete = (home: HomeRowItem) => {
-    Alert.alert("Delete Home", `Delete "${home.name}"? This cannot be undone.`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await api.post(`/app/home/${home.id}/delete`, {}, authHeaders);
-            await loadHomes();
-          } catch {
-            Alert.alert("Error", "Could not delete this home.");
-          }
-        },
+    setPendingTextCallback(async (value) => {
+      if (value.trim().toLowerCase() !== DELETE_CONFIRM_PHRASE) {
+        Alert.alert("Not Deleted", `You must type "${DELETE_CONFIRM_PHRASE}" exactly to confirm.`);
+        return;
+      }
+      try {
+        await api.post(`/app/home/${home.id}/delete`, {}, authHeaders);
+        await loadHomes();
+      } catch {
+        Alert.alert("Error", "Could not delete this home.");
+      }
+    });
+    pushModal({
+      pathname: "/(tabs)/places/edit-text",
+      params: {
+        title: `Delete "${home.name}"`,
+        subtitle: `This permanently deletes "${home.name}" and everything in it. Unlike rooms, containers, and items, homes are not recoverable from Trash. \n\nType "${DELETE_CONFIRM_PHRASE}" to confirm.`,
+        placeholder: DELETE_CONFIRM_PHRASE,
+        submitLabel: "Delete",
+        autoCapitalize: "none",
       },
-    ]);
+    });
   };
 
   const handleLeave = (home: HomeRowItem) => {
@@ -137,7 +146,11 @@ export default function Index() {
   const openRename = (home: HomeRowItem) => {
     setPendingTextCallback(async (value) => {
       try {
-        await api.post(`/app/home/${home.id}/rename`, { name: value, expected_updated_at: home.updated_at }, authHeaders);
+        await api.post(
+          `/app/home/${home.id}/rename`,
+          { name: value, expected_updated_at: home.updated_at },
+          authHeaders,
+        );
         await loadHomes();
       } catch (err) {
         showError(err, "Could not rename this home.");
@@ -145,14 +158,23 @@ export default function Index() {
     });
     pushModal({
       pathname: "/(tabs)/places/edit-text",
-      params: { title: `Rename "${home.name}"`, placeholder: "Home name", initialValue: home.name, submitLabel: "Save" },
+      params: {
+        title: `Rename "${home.name}"`,
+        placeholder: "Home name",
+        initialValue: home.name,
+        submitLabel: "Save",
+      },
     });
   };
 
   const openEditAddress = (home: HomeRowItem) => {
     setPendingTextCallback(async (value) => {
       try {
-        await api.post(`/app/home/${home.id}/address`, { address: value, expected_updated_at: home.updated_at }, authHeaders);
+        await api.post(
+          `/app/home/${home.id}/address`,
+          { address: value, expected_updated_at: home.updated_at },
+          authHeaders,
+        );
         await loadHomes();
       } catch (err) {
         showError(err, "Could not update the address.");

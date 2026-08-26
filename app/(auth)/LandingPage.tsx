@@ -2,6 +2,7 @@ import { AuthButton } from "@/components/AuthButton";
 import { AuthDivider } from "@/components/AuthDivider";
 import { AuthErrorBanner } from "@/components/AuthErrorBanner";
 import { AuthScreenContainer } from "@/components/AuthScreenContainer";
+import { GOOGLE_SIGNIN_CONFIG } from "@/constants";
 import useAppleSignIn from "@/domain/auth/useAppleSignIn";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
 import { AuthSpacing, useAuthTheme } from "@/styles/auth.styles";
@@ -20,11 +21,7 @@ const LandingPage = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    GoogleSignin.configure({
-      iosClientId: "576724600295-1qvvi3u0t52o15eg1202mnc0phs9qejn.apps.googleusercontent.com",
-      webClientId: "576724600295-o03u09d0l2jh5osvul7f1gci8l5r20m3.apps.googleusercontent.com",
-      profileImageSize: 150,
-    });
+    GoogleSignin.configure(GOOGLE_SIGNIN_CONFIG);
   }, []);
 
   const onPressGoogle = async () => {
@@ -82,7 +79,7 @@ const LandingPage = () => {
     <AuthScreenContainer>
       <Image source={require("@/assets/images/icon.png")} style={AuthStyles.logoBadge} />
       <Text style={AuthStyles.title}>Itemory</Text>
-      <Text style={AuthStyles.subtitle}>Organize everything you own, room by room.</Text>
+      <Text style={AuthStyles.subtitle}>Organize everything you own</Text>
 
       <AuthErrorBanner message={errorMessage} />
 

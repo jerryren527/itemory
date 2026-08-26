@@ -64,6 +64,8 @@ type NodeDetails = {
   container_id?: number | null;
   /** A container's current parent container, if nested (container responses only). */
   parent_container_id?: number | null;
+  /** Breadcrumb from the home down to and including this node (room/container responses only). */
+  path?: { type: "home" | "room" | "container"; id: number; name: string }[];
 };
 
 type NodeResponse = {
@@ -259,6 +261,37 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
     });
   };
 
+  const handleDescriptionSubmit = async (rawValue: string) => {
+    const expected_updated_at = data?.node_details?.updated_at;
+    try {
+      await api.post(
+        `/app/place-node/${nodeType}/${nodeId}/update`,
+        { description: rawValue.trim() || null, expected_updated_at },
+        authHeaders,
+      );
+      await loadNode();
+    } catch (err) {
+      const message = axios.isAxiosError(err) ? (err.response?.data?.message ?? "Something went wrong.") : "Something went wrong.";
+      Alert.alert("Error", message);
+    }
+  };
+
+  const openDescriptionField = () => {
+    setPendingTextCallback((value) => handleDescriptionSubmit(value));
+    pushModal({
+      pathname: `${basePath}/edit-text` as any,
+      params: {
+        title: "Edit Description",
+        placeholder: "Description",
+        initialValue: data?.node_details?.description ?? "",
+        submitLabel: "Save",
+        multiline: "true",
+        autoCapitalize: "sentences",
+        showClear: "true",
+      },
+    });
+  };
+
   const openMoveModal = () => {
     const node = data!.node_details;
     const currentContainerId = nodeType === "container" ? node.parent_container_id : node.container_id;
@@ -267,6 +300,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
       params: {
         kind: nodeType,
         nodeId: String(nodeId),
+        nodeName: node.name,
         roomId: node.room_id != null ? String(node.room_id) : "",
         containerId: currentContainerId != null ? String(currentContainerId) : "",
         homeId: node.home_id != null ? String(node.home_id) : "",
@@ -602,7 +636,13 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             )}
           </TouchableOpacity>
 
-          <PressableDetailRow label="Location" value={item.location || "—"} onPress={openMoveModal} />
+          <PressableDetailRow
+            label="Location"
+            value={item.location || "—"}
+            onPress={openMoveModal}
+            icon="folder-move-outline"
+            iconColor={colors.tint}
+          />
           <PressableDetailRow
             label="Description"
             value={item.description || "—"}
@@ -646,7 +686,20 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
               ? () => (
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     {canMove && (
-                      <HeaderIconButton icon="folder-move-outline" color={colors.tint} onPress={openMoveModal} />
+                      <TouchableOpacity
+                        onPress={openMoveModal}
+                        hitSlop={12}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 4,
+                          paddingHorizontal: 8,
+                          paddingVertical: 8,
+                        }}
+                      >
+                        <MaterialCommunityIcons name="folder-move-outline" size={20} color={colors.tint} />
+                        <Text style={{ color: colors.tint, fontWeight: "600", fontSize: 15 }}>Move</Text>
+                      </TouchableOpacity>
                     )}
                     {canAdd && <HeaderIconButton onPress={handleAddPress} />}
                   </View>
@@ -664,6 +717,18 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
           })
         }
       />
+      {(nodeType === "room" || nodeType === "container") && data.node_details.path && (
+        <NodePathBreadcrumb path={data.node_details.path} basePath={basePath} />
+      )}
+      {(nodeType === "room" || nodeType === "container") && (
+        <View style={{ paddingHorizontal: 16 }}>
+          <PressableDetailRow
+            label="Description"
+            value={data.node_details.description || "—"}
+            onPress={openDescriptionField}
+          />
+        </View>
+      )}
       {data.children.length > 0 && (
         <TouchableOpacity
           onPress={openSortMenu}
@@ -714,7 +779,67 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
   );
 }
 
-function PressableDetailRow({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
+function NodePathBreadcrumb({
+  path,
+  basePath,
+}: {
+  path: { type: "home" | "room" | "container"; id: number; name: string }[];
+  basePath: string;
+}) {
+  const colors = useThemeColors();
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={{ flexGrow: 0, height: 20, marginTop: 4 }}
+      contentContainerStyle={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16 }}
+    >
+      {path.map((step, index) => {
+        const isLast = index === path.length - 1;
+        return (
+          <View key={`${step.type}-${step.id}`} style={{ flexDirection: "row", alignItems: "center" }}>
+            {index > 0 && (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={14}
+                color={colors.textMuted}
+                style={{ marginHorizontal: 2 }}
+              />
+            )}
+            {isLast ? (
+              <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>{step.name}</Text>
+            ) : (
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: `${basePath}/node/[nodeType]/[nodeId]` as any,
+                    params: { nodeType: step.type, nodeId: String(step.id), name: step.name },
+                  })
+                }
+              >
+                <Text style={{ fontSize: 13, color: colors.tint }}>{step.name}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+function PressableDetailRow({
+  label,
+  value,
+  onPress,
+  icon = "chevron-right",
+  iconColor,
+}: {
+  label: string;
+  value: string;
+  onPress: () => void;
+  icon?: keyof typeof MaterialCommunityIcons.glyphMap;
+  iconColor?: string;
+}) {
   const colors = useThemeColors();
   return (
     <TouchableOpacity
@@ -728,8 +853,10 @@ function PressableDetailRow({ label, value, onPress }: { label: string; value: s
       }}
     >
       <Text style={{ width: 100, color: colors.textSecondary, fontSize: 14 }}>{label}</Text>
-      <Text style={{ flex: 1, fontSize: 14, color: colors.text }}>{value}</Text>
-      <MaterialCommunityIcons name="chevron-right" size={18} color={colors.textMuted} />
+      <Text style={{ flex: 1, fontSize: 14, color: colors.text }} numberOfLines={1} ellipsizeMode="tail">
+        {value}
+      </Text>
+      <MaterialCommunityIcons name={icon} size={18} color={iconColor ?? colors.textMuted} />
     </TouchableOpacity>
   );
 }
