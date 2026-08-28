@@ -642,6 +642,7 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
             onPress={openMoveModal}
             icon="folder-move-outline"
             iconColor={colors.tint}
+            wrap
           />
           <PressableDetailRow
             label="Description"
@@ -833,12 +834,14 @@ function PressableDetailRow({
   onPress,
   icon = "chevron-right",
   iconColor,
+  wrap = false,
 }: {
   label: string;
   value: string;
   onPress: () => void;
   icon?: keyof typeof MaterialCommunityIcons.glyphMap;
   iconColor?: string;
+  wrap?: boolean;
 }) {
   const colors = useThemeColors();
   return (
@@ -853,7 +856,11 @@ function PressableDetailRow({
       }}
     >
       <Text style={{ width: 100, color: colors.textSecondary, fontSize: 14 }}>{label}</Text>
-      <Text style={{ flex: 1, fontSize: 14, color: colors.text }} numberOfLines={1} ellipsizeMode="tail">
+      <Text
+        style={{ flex: 1, fontSize: 14, color: colors.text }}
+        numberOfLines={wrap ? undefined : 1}
+        ellipsizeMode={wrap ? undefined : "tail"}
+      >
         {value}
       </Text>
       <MaterialCommunityIcons name={icon} size={18} color={iconColor ?? colors.textMuted} />

@@ -67,6 +67,17 @@ const SettingsScreen = () => {
   const handleUnlinkGoogle = async () => {
     if (unlinking) return;
 
+    // Apple Sign In has no Android implementation, so leaving Apple as the only
+    // remaining method would lock the user out on Android even though the
+    // account technically still has a valid credential.
+    if (state.capabilities.hasApple && !state.capabilities.hasPassword) {
+      Alert.alert(
+        "Can't unlink Google",
+        "Apple Sign In isn't available on Android. Set a password before removing Google, so you can still sign in on any device.",
+      );
+      return;
+    }
+
     setUnlinking(true);
     setErrorMessage(null);
 
