@@ -6,6 +6,7 @@ import { AuthContext } from "@/context/auth-context";
 import { AuthState } from "@/domain/auth/authTypes";
 import api from "@/interceptors/axios";
 import { useAuthTheme } from "@/styles/auth.styles";
+import { extractErrorMessage } from "@/utils/apiError";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useContext, useRef, useState } from "react";
@@ -60,7 +61,7 @@ const SignUpPage = () => {
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response) {
-          setErrorMessage(err.response.data?.message);
+          setErrorMessage(extractErrorMessage(err.response.data, "Please check your input and try again."));
         } else if (err.request) {
           setErrorMessage("Please check your internet connection");
         } else {

@@ -60,9 +60,13 @@ const LandingPage = () => {
         setErrorMessage("Apple Sign In is unavailable. Please try again.");
         return;
       }
-      if (err?.isAxiosError) {
+      if (axios.isAxiosError(err)) {
         console.log("🚀 ~ LandingPage.tsx ~ onPressApple ~ network/backend error:", err);
-        setErrorMessage("Please check your internet connection.");
+        if (err.response) {
+          setErrorMessage(err.response.data?.message ?? `Sign-in failed (${err.response.status}).`);
+        } else {
+          setErrorMessage("Could not reach the server. Check your connection and try again.");
+        }
         return;
       }
       // SecureStore or unknown error

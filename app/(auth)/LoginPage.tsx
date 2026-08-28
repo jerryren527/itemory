@@ -10,6 +10,7 @@ import useAppleSignIn from "@/domain/auth/useAppleSignIn";
 import useGoogleSignIn from "@/domain/auth/useGoogleSignIn";
 import api from "@/interceptors/axios";
 import { useAuthTheme } from "@/styles/auth.styles";
+import { extractErrorMessage } from "@/utils/apiError";
 import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import axios from "axios";
 import * as AppleAuthentication from "expo-apple-authentication";
@@ -90,7 +91,7 @@ const LoginPage = () => {
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response) {
-          setErrorMessage(err.response.data?.message);
+          setErrorMessage(extractErrorMessage(err.response.data, "Please check your input and try again."));
         } else if (err.request) {
           // If err.response is undefined, that means there was a network failure (when you turn wifi off on phone). But err.request still exists
           setErrorMessage("Please check your internet connection");
@@ -103,6 +104,29 @@ const LoginPage = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onPressGoogle = async () => {
+    try {
+      setErrorMessage(null);
+      await handleGoogleSignIn();
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        console.log("🚀 ~ LoginPage.tsx ~ onPressGoogle ~ network/backend error:", err);
+        if (err.response) {
+          setErrorMessage(err.response.data?.message ?? "Could not sign in with Google.");
+        } else if (err.request) {
+          setErrorMessage("Please check your internet connection.");
+        } else {
+          setErrorMessage(err.message);
+        }
+      } else if (err?.code) {
+        console.log("🚀 ~ LoginPage.tsx ~ onPressGoogle ~ native error:", err);
+        setErrorMessage(`Google sign-in failed: ${err.code}`);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -120,9 +144,17 @@ const LoginPage = () => {
         setErrorMessage("Apple Sign In is unavailable. Please try again.");
         return;
       }
-      if (err?.isAxiosError) {
+      if (axios.isAxiosError(err)) {
         console.log("🚀 ~ LoginPage.tsx ~ onPressApple ~ network/backend error:", err);
-        setErrorMessage("Please check your internet connection.");
+        if (err.response) {
+          setErrorMessage(err.response.data?.message ?? "Something went wrong. Please try again.");
+        } else if (err.request) {
+          // err.response is undefined but err.request exists: the request went out but no response came back (e.g. wifi off)
+          setErrorMessage("Please check your internet connection.");
+        } else {
+          // Request never left due to a configuration bug: invalid URL, missing env var. Axios throws before creating a request.
+          setErrorMessage(err.message);
+        }
         return;
       }
       // SecureStore or unknown error
@@ -189,7 +221,7 @@ const LoginPage = () => {
         <GoogleSigninButton
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
-          onPress={handleGoogleSignIn}
+          onPress={onPressGoogle}
           disabled={loading}
         />
 
