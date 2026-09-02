@@ -49,6 +49,7 @@ const useGoogleSignIn = () => {
             hasPassword: res.data.has_password,
             emailVerified: res.data.email_verified,
             hasGoogle: res.data.google_account_linked,
+            hasApple: res.data.apple_account_linked,
             accessToken: res.data.access_token,
             authProvider: "google",
             primaryHome: res.data.primary_home,

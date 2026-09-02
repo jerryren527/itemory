@@ -11,7 +11,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { GoogleSignin, isSuccessResponse } from "@react-native-google-signin/google-signin";
 import axios from "axios";
 import * as AppleAuthentication from "expo-apple-authentication";
-import { useContext, useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Alert, Platform, ScrollView, Text, View } from "react-native";
 
 const SettingsScreen = () => {
@@ -31,6 +32,49 @@ const SettingsScreen = () => {
   useEffect(() => {
     GoogleSignin.configure(GOOGLE_SIGNIN_CONFIG);
   }, []);
+
+  // Login only reports the fields relevant to the sign-in method used (see
+  // LOGIN_SUCCEEDED), so capabilities.hasGoogle/hasApple can be stale or
+  // undefined until the next full app restart. Refetch the true DB values
+  // every time this screen is focused so linked-account state stays accurate.
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+
+      const refreshCapabilities = async () => {
+        try {
+          const res = await api.get("/app/me", {
+            headers: { Authorization: `Bearer ${state.tokens.accessToken}` },
+          });
+          if (cancelled) return;
+
+          dispatch({
+            type: "RESTORE_SESSION",
+            payload: {
+              accessToken: state.tokens.accessToken,
+              email: res.data?.email,
+              username: res.data?.username,
+              googleEmail: res.data?.google_email,
+              emailVerified: res.data?.email_verified,
+              hasPassword: res.data?.has_password,
+              hasGoogle: res.data?.google_account_linked,
+              hasApple: res.data?.apple_account_linked,
+              id: res.data?.id,
+              primaryHome: res.data?.primary_home,
+            },
+          });
+        } catch {
+          // Keep showing the last known state if the refresh fails.
+        }
+      };
+
+      refreshCapabilities();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [state.tokens.accessToken]),
+  );
 
   const handleLinkGoogle = async () => {
     if (linking) return;
@@ -69,8 +113,9 @@ const SettingsScreen = () => {
 
     // Apple Sign In has no Android implementation, so leaving Apple as the only
     // remaining method would lock the user out on Android even though the
-    // account technically still has a valid credential.
-    if (state.capabilities.hasApple && !state.capabilities.hasPassword) {
+    // account technically still has a valid credential. Only relevant when
+    // the user is actually on Android — Apple still works fine on iOS.
+    if (Platform.OS === "android" && state.capabilities.hasApple && !state.capabilities.hasPassword) {
       Alert.alert(
         "Can't unlink Google",
         "Apple Sign In isn't available on Android. Set a password before removing Google, so you can still sign in on any device.",
