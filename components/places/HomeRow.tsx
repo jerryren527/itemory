@@ -59,6 +59,11 @@ export default function HomeRow({ item, onPress, onMenuPress, showDateModified }
               <Text style={{ fontSize: 13, color: colors.textSecondary }}>Owner: {item.owner_username}</Text>
             )
           )}
+          {item.address && (
+            <Text style={{ fontSize: 13, color: colors.textSecondary }} numberOfLines={1}>
+              {item.address}
+            </Text>
+          )}
         </View>
       </TouchableOpacity>
 
