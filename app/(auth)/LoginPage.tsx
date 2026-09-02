@@ -67,6 +67,7 @@ const LoginPage = () => {
       const hasPassword = res.data?.has_password;
       const emailVerified = res.data?.email_verified;
       const hasGoogle = res.data?.google_account_linked;
+      const hasApple = res.data?.apple_account_linked;
       const primaryHome = res.data?.primary_home;
 
       await SecureStore.setItemAsync("refreshToken", refresh);
@@ -80,6 +81,7 @@ const LoginPage = () => {
           hasPassword: hasPassword,
           emailVerified: emailVerified,
           hasGoogle: hasGoogle,
+          hasApple: hasApple,
           accessToken: access,
           authProvider: "email",
           primaryHome: primaryHome,

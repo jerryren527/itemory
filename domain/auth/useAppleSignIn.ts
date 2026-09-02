@@ -21,8 +21,13 @@ const useAppleSignIn = () => {
         authProvider: "apple",
         email: res.data.email,
         username: res.data.username,
+        googleEmail: res.data.google_email,
         userId: res.data.id,
+        hasPassword: res.data.has_password,
+        emailVerified: res.data.email_verified,
+        hasGoogle: res.data.google_account_linked,
         hasApple: res.data.apple_account_linked,
+        primaryHome: res.data.primary_home,
       },
     });
 
