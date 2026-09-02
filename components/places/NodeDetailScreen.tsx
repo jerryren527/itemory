@@ -687,20 +687,13 @@ export default function NodeDetailScreen({ basePath }: NodeDetailScreenProps) {
               ? () => (
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     {canMove && (
-                      <TouchableOpacity
+                      <HeaderIconButton
+                        icon="folder-move-outline"
+                        label="Move"
+                        size={20}
+                        color={colors.tint}
                         onPress={openMoveModal}
-                        hitSlop={12}
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          gap: 4,
-                          paddingHorizontal: 8,
-                          paddingVertical: 8,
-                        }}
-                      >
-                        <MaterialCommunityIcons name="folder-move-outline" size={20} color={colors.tint} />
-                        <Text style={{ color: colors.tint, fontWeight: "600", fontSize: 15 }}>Move</Text>
-                      </TouchableOpacity>
+                      />
                     )}
                     {canAdd && <HeaderIconButton onPress={handleAddPress} />}
                   </View>
